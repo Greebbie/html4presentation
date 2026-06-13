@@ -1,0 +1,14 @@
+# Dependencies
+node_modules/
+
+# Dev test harness (Playwright) — not part of the shipped product
+tests/
+package.json
+package-lock.json
+playwright.config.js
+test-results/
+playwright-report/
+.playwright/
+
+# Internal process docs (brainstorming specs, implementation plans)
+docs/
