@@ -1,3 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Editable HTML deck — demo</title>
+  <style>
+    :root { --bg:#0f172a; --fg:#e2e8f0; --muted:#94a3b8; --accent:#38bdf8; }
+    * { box-sizing:border-box; }
+    html,body { margin:0; height:100%; }
+    body { background:#0b0f1a; color:var(--fg);
+      font-family:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+      -webkit-font-smoothing:antialiased; }
+    .deck { height:100vh; }
+    .stage { background:var(--bg); display:flex; flex-direction:column;
+      justify-content:center; gap:24px; padding:72px 96px; }
+    .stage > * { margin:0; }
+    .stage h1 { font-size:72px; line-height:1.05; letter-spacing:-1.5px; margin:0; }
+    .stage h2 { font-size:46px; line-height:1.1; margin:0 0 8px; }
+    .stage p  { font-size:24px; line-height:1.5; color:var(--muted); margin:0; }
+    .stage ul { font-size:24px; line-height:1.7; padding-left:1.2em; margin:0; }
+    .stage .accent { color:var(--accent); }
+    .stage[data-layout="title"], .stage[data-layout="statement"],
+    .stage[data-layout="center"] { text-align:center; align-items:center; }
+    .stage[data-layout="statement"] h1 { font-size:104px; }
+    .stage[data-layout="title"] .kicker { text-transform:uppercase; letter-spacing:3px;
+      font-size:15px; color:var(--accent); }
+    .stage[data-layout="image-right"] > .row { display:grid; grid-template-columns:1fr 1fr;
+      gap:64px; align-items:center; width:100%; }
+    .stage[data-layout="image-right"] figure { margin:0; }
+    .stage[data-layout="image-right"] img { width:100%; height:auto; border-radius:16px;
+      display:block; box-shadow:0 20px 50px rgba(0,0,0,.45); }
+  </style>
+</head>
+<body>
+  <div class="deck" data-layouts="default title statement image-right center">
+
+    <section class="slide is-active">
+      <div class="stage" data-layout="title">
+        <p class="kicker" data-editable>One self-contained HTML file</p>
+        <h1 data-editable>HTML slides, <span class="accent">editable like PowerPoint</span></h1>
+        <p data-editable>Open this file in a browser, press E, and change anything.</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="stage" data-layout="statement">
+        <h1 data-editable>Click any text.<br><span class="accent">Just start typing.</span></h1>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="stage" data-layout="image-right">
+        <div class="row">
+          <div>
+            <h2 data-editable>Swap an image</h2>
+            <ul data-editable>
+              <li>Drag an image file onto the picture, or</li>
+              <li>click it to choose one.</li>
+              <li>It embeds into the file — stays portable.</li>
+            </ul>
+          </div>
+          <figure>
+            <img data-slot alt="Replace me"
+              src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Crect width='100%25' height='100%25' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='30' fill='%2364748b' text-anchor='middle' dominant-baseline='middle'%3EDrop an image here%3C/text%3E%3C/svg%3E">
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="stage" data-layout="title">
+        <h1 data-editable>Reshape the deck</h1>
+        <p data-editable>In edit mode: reorder, add, or delete slides and cycle layout from the bottom bar.</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="stage" data-layout="title">
+        <h1 data-editable>Then hit <span class="accent">Save</span></h1>
+        <p data-editable>Writes back to the .html file. Arrow keys present. Press E to edit.</p>
+      </div>
+    </section>
+
+    <section class="slide">
+      <div class="stage" data-layout="default" style="background:#0f172a">
+        <h2 data-editable>Drag anything in edit mode</h2>
+        <p data-editable>Press E, click an element, drag it or grab a corner to resize.</p>
+        <div class="ed-shape" data-shape="rect" data-free
+             style="position:absolute;left:840px;top:360px;width:220px;height:140px;margin:0"></div>
+        <div data-editable data-free
+             style="position:absolute;left:120px;top:520px;width:420px;height:60px;margin:0;font-size:28px">
+          A free-floating caption.
+        </div>
+      </div>
+    </section>
+
+  </div>
+
 <!-- ============================================================================
      DECK EDITOR — drop-in, single block. Paste this verbatim before </body>.
      Turns a deck into a PowerPoint-like editor: edit text, swap images,
@@ -1325,3 +1424,6 @@
   else boot();
 })();
 </script>
+
+</body>
+</html>

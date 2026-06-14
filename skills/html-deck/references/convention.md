@@ -66,7 +66,7 @@ per-layout rules below — all keyed off `.stage`.
 ## Copy-paste CSS recipe for the standard layouts
 
 Author at the fixed 1280×720 stage: use **fixed px** sizes (not `clamp()` / `vw` / `vh`),
-because the editor scales the whole stage uniformly. This is the recipe `index.html` ships.
+because the editor scales the whole stage uniformly. This is the recipe `demo/index.html` ships.
 
 ```css
 :root { --bg:#0f172a; --fg:#e2e8f0; --muted:#94a3b8; --accent:#38bdf8; }

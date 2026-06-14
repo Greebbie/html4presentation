@@ -1,84 +1,65 @@
 # html4presentation
 
-Make AI-generated ("vibed") HTML decks editable like PowerPoint. The approach: a
-generation-time **skill** so every deck is **born editable**. The model emits one
-self-contained `.html` file with a drop-in editor embedded, so the recipient can:
+**html4presentation** is an agent skill that generates single-file HTML presentations editable like PowerPoint — in the browser, offline, with no build step, server, or dependencies. Every deck it produces embeds a drop-in editor, so it ships ready to edit.
 
-- click any text and type,
-- drag an image file onto a picture to replace it,
-- reorder / add / delete slides and cycle layout,
-- and **Save** back to the file —
+## How it works
 
-all in the browser, **offline, by double-clicking the file**. No app, no account, no
-server, no AI at edit time.
+A deck is one self-contained `.html` file: inline CSS, your slides, and a drop-in editor `<script>`. Open it by double-clicking — present with the arrow keys, or press **E** to edit. The editor injects its own interface and strips all of it on save, so the written file stays clean and re-opens editable.
 
-## Repository layout
+## Features
+
+- **Edit in place** — click any text to type; drag an image file onto a picture to replace it (embedded as a data URL).
+- **Restructure** — reorder, add, duplicate, and delete slides; cycle layouts; drag and resize elements with alignment guides.
+- **Author tools** — undo/redo, text formatting, per-slide backgrounds, and a thumbnail sidebar.
+- **Present** — press **F** for fullscreen; navigate with `←` `→` `Space`.
+- **Save** — `Ctrl`/`Cmd`+`S`. Chromium writes straight back to the file; other browsers download an updated copy.
+- **No dependencies** — vanilla JS in one classic `<script>`; runs from `file://`.
+
+## Quick start
+
+Open the reference deck and try it:
 
 ```
-skills/html-deck/
-  SKILL.md                      # the skill (Claude Code invokes it; Codex reads it via AGENTS.md)
-  references/convention.md      # full attribute reference + copy-paste layout CSS
-  assets/deck-editor.inline.html# the drop-in editor block (single source of truth)
-AGENTS.md                       # entry point for Codex / other agents
-index.html                      # a working born-editable reference deck — open it
-docs/superpowers/specs/         # design docs
+demo/index.html
 ```
 
-## Use it with Claude Code or Codex
+Press **E** to edit, **F** to present, `Ctrl`/`Cmd`+`S` to save. A second example lives at `demo/genshin-impact.html`.
 
-The skill is harness-portable — one source of truth, two front doors:
+## Generate a deck with an agent
 
-- **Claude Code:** install `skills/html-deck/` as a skill, then ask for a deck (or run
-  `/html-deck`). The model follows `SKILL.md`.
-- **Codex (and others):** `AGENTS.md` tells the agent to follow `skills/html-deck/SKILL.md`
-  when asked to build a presentation. Codex reads `AGENTS.md` automatically.
+The editor is delivered as a portable skill — one source of truth, two entry points:
 
-Either way the agent generates a single `.html` with the editor embedded. Ask for
-something like *"make me a 6-slide deck about X."*
+- **Claude Code** — install `skills/html-deck/`, then ask for a deck (or run `/html-deck`).
+- **Codex and other agents** — `AGENTS.md` points them at `skills/html-deck/SKILL.md`.
 
-## Using a generated deck
+Ask for something like *“make me a 6-slide deck about X.”* The agent emits one `.html` with the editor embedded.
 
-1. Double-click the `.html` (or open it in a browser).
-2. Present: `←` / `→` / `Space`.
-3. Edit: press **E** (or click **Edit**).
-   - Click dashed text → type. Pasting drops formatting.
-   - Click an image, or drag an image file onto it → replace (embedded as a data URL).
-   - Bottom bar: move slide ◀ ▶, **+ Slide** (duplicate), **− Slide** (delete),
-     **Layout** (cycle).
-4. **Save** or `Ctrl/Cmd+S`. On Chrome/Edge it writes straight back to the file; other
-   browsers download an updated copy.
-
-## Authoring contract (what the skill produces)
+## Authoring contract
 
 ```html
 <div class="deck" data-layouts="default title statement image-right center">
-  <section class="slide is-active" data-layout="title">
-    <h1 data-editable>Headline</h1>
-    <p data-editable>Subtitle</p>
+  <section class="slide is-active">
+    <div class="stage" data-layout="title">
+      <h1 data-editable>Headline</h1>
+      <p data-editable>Subtitle</p>
+    </div>
   </section>
+  <!-- editor block from skills/html-deck/assets/deck-editor.inline.html, pasted verbatim -->
 </div>
-<!-- editor block from skills/html-deck/assets/deck-editor.inline.html, verbatim -->
 ```
 
-- `.deck` > `.slide` (first slide `is-active`).
+- `.deck` › `.slide` › `.stage` — the first slide carries `is-active`; each `.stage` is a fixed 1280×720 canvas the editor scales to fit.
 - `data-editable` marks editable text; `data-slot` marks swappable images.
-- `data-layout` per slide; `data-layouts` lists what **Layout** cycles through.
-- No `data-editable`/`data-slot`? The editor auto-detects text and images — but the
-  explicit convention is more reliable.
+- `data-layout` sets a stage's layout; `data-layouts` lists what **Layout** cycles through.
 
-Full reference: `skills/html-deck/references/convention.md`.
+Full reference: [`skills/html-deck/references/convention.md`](skills/html-deck/references/convention.md).
 
-## The editor
+## Repository layout
 
-Vanilla JS, no build, no dependencies, one classic `<script>` that injects its own
-styles. Because it's a plain inline script (not an ES module), generated decks run from
-`file://` — double-click works. It strips all its own chrome on save, so the written
-file stays clean and re-opens editable.
-
-## Roadmap
-
-- **Retrofit injector** (the other front door): a tiny drag-drop tool / one-liner that
-  embeds this same editor into an *existing* vibed deck that wasn't generated by the
-  skill.
-- Richer layout editing (drag-to-resize, structural layout swaps that restructure
-  content, not just re-align).
+| Path | Purpose |
+| --- | --- |
+| `skills/html-deck/SKILL.md` | The skill an agent follows to generate a deck |
+| `skills/html-deck/references/convention.md` | Attribute reference and copy-paste layout CSS |
+| `skills/html-deck/assets/deck-editor.inline.html` | The drop-in editor — single source of truth |
+| `demo/` | Working reference decks |
+| `AGENTS.md` | Entry point for Codex and other agents |

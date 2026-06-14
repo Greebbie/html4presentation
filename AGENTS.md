@@ -23,7 +23,7 @@ In short:
    `</body>` so the deck is editable like PowerPoint (edit text, swap images,
    reorder/add/delete slides, change layout, save back to the file).
 
-`index.html` at the repo root is a working reference output — open it to see the target.
+`demo/index.html` is a working reference output — open it to see the target.
 
 > Claude Code users can also invoke this as the `/html-deck` skill directly; the
 > instructions are identical. Codex and other agents reach it through this file.
