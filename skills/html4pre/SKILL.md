@@ -1,9 +1,9 @@
 ---
-name: html-deck
+name: html4pre
 description: Use when the user wants to create a presentation, slides, slide deck, or "a deck" as HTML. Generates a single self-contained .html file that is editable like PowerPoint — the recipient can drag images to replace them, click text to edit, reorder/add/delete slides, change layout, and save back to the file — by embedding a drop-in editor. Works offline by double-clicking the file. Use for any "make me slides / a pitch deck / a talk" request where the output should be HTML.
 ---
 
-# html-deck — generate decks that are born editable
+# html4pre — generate decks that are born editable
 
 Produce **one self-contained `.html` file** that presents beautifully *and* can be
 edited like PowerPoint with no tools, no server, and no AI — just by opening the file

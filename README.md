@@ -30,8 +30,8 @@ Press **E** to edit, **F** to present, `Ctrl`/`Cmd`+`S` to save, or open **Expor
 
 The editor is delivered as a portable skill — one source of truth, two entry points:
 
-- **Claude Code** — install `skills/html-deck/`, then ask for a deck (or run `/html-deck`).
-- **Codex and other agents** — `AGENTS.md` points them at `skills/html-deck/SKILL.md`.
+- **Claude Code** — install `skills/html4pre/`, then ask for a deck (or run `/html4pre`).
+- **Codex and other agents** — `AGENTS.md` points them at `skills/html4pre/SKILL.md`.
 
 Ask for something like *“make me a 6-slide deck about X.”* The agent emits one `.html` with the editor embedded.
 
@@ -48,7 +48,7 @@ Ask for something like *“make me a 6-slide deck about X.”* The agent emits o
       <p data-editable>Subtitle</p>
     </div>
   </section>
-  <!-- editor block from skills/html-deck/assets/deck-editor.inline.html, pasted verbatim -->
+  <!-- editor block from skills/html4pre/assets/deck-editor.inline.html, pasted verbatim -->
 </div>
 ```
 
@@ -57,14 +57,14 @@ Ask for something like *“make me a 6-slide deck about X.”* The agent emits o
 - `data-layout` sets a stage's layout; `data-layouts` lists what **Layout** cycles through.
 - `data-slide-width` / `data-slide-height` set the deck's logical slide size; new decks should default to `1920×1080`. PDF/PPTX export can render at any requested pixel size, and PPTX output is full-slide images rather than editable PowerPoint text boxes.
 
-Full reference: [`skills/html-deck/references/convention.md`](skills/html-deck/references/convention.md).
+Full reference: [`skills/html4pre/references/convention.md`](skills/html4pre/references/convention.md).
 
 ## Repository layout
 
 | Path | Purpose |
 | --- | --- |
-| `skills/html-deck/SKILL.md` | The skill an agent follows to generate a deck |
-| `skills/html-deck/references/convention.md` | Attribute reference and copy-paste layout CSS |
-| `skills/html-deck/assets/deck-editor.inline.html` | The drop-in editor — single source of truth |
+| `skills/html4pre/SKILL.md` | The skill an agent follows to generate a deck |
+| `skills/html4pre/references/convention.md` | Attribute reference and copy-paste layout CSS |
+| `skills/html4pre/assets/deck-editor.inline.html` | The drop-in editor — single source of truth |
 | `demo/` | Working reference decks |
 | `AGENTS.md` | Entry point for Codex and other agents |
