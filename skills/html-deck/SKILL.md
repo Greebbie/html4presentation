@@ -24,7 +24,10 @@ Every deck you generate MUST be a single `.html` file with this shape:
   <style> /* ALL the deck's visual CSS goes here, inline */ </style>
 </head>
 <body>
-  <div class="deck" data-layouts="default title statement image-right center">
+  <div class="deck"
+       data-layouts="default title statement image-right center"
+       data-slide-width="1920"
+       data-slide-height="1080">
     <section class="slide is-active">
       <div class="stage" data-layout="title">
         <h1 data-editable>...</h1>
@@ -48,14 +51,16 @@ Hard rules — do not deviate:
    before `</body>`. Do not edit, minify, or "improve" it.
 3. **Follow the markup contract** (`.deck > .slide > .stage`) so the editor can find things:
    - Slides are `<section class="slide">` inside `<div class="deck">`.
-   - Each slide wraps its content in a single `<div class="stage">` (the fixed 1280×720
-     canvas the editor scales to fit).
+   - Each slide wraps its content in a single `<div class="stage">`.
+   - The deck declares its logical slide size with `data-slide-width` and
+     `data-slide-height`; default new decks to `1920×1080`.
    - The first slide also has `is-active`.
    - Every editable text element gets `data-editable`.
    - Every swappable `<img>` gets `data-slot`.
    - `data-layout="<name>"` goes on the **`.stage`** (not the slide); declare the names on
      the deck via `data-layouts="..."`.
-   - Author at fixed px sizes (not `vw`/`clamp()`); the editor scales the whole stage.
+   - Author at fixed px sizes against the deck's logical slide size (not `vw`/`clamp()`);
+     the editor scales the whole stage for display.
 4. **Images:** prefer an inline SVG `data:` URI placeholder so swap works offline and
    the file stays portable. If you use a real image, keep it as a `data:` URI too.
 5. **Slide visibility is owned by the editor** (`.slide{display:none}` /
@@ -81,17 +86,18 @@ recipe for the standard layouts.
 
 The embedded editor now supports: drag/resize elements with alignment guides, undo/redo,
 text formatting (size/bold/italic/underline/color/align), insert text box / shape / image,
-per-slide background, a thumbnail sidebar with drag-to-reorder, and layout templates that
-add new pre-built slides. After editing, elements a user dragged or resized carry
-`data-free` plus inline `left/top/width/height` geometry — that's expected and still valid
-markup (the editor and a re-opened saved file both honor it).
+per-slide background, a thumbnail sidebar with drag-to-reorder, layout templates that add
+new pre-built slides, slide-size controls, and an Export dialog for image-based PDF/PPTX.
+PPTX export is full-slide screenshots, not editable PowerPoint text boxes. After editing, elements a user
+dragged or resized carry `data-free` plus inline `left/top/width/height` geometry — that's
+expected and still valid markup (the editor and a re-opened saved file both honor it).
 
 ## Self-check before finishing
 
 - [ ] Single file, all CSS inline, no external references.
 - [ ] Editor block pasted verbatim before `</body>`.
 - [ ] `.deck` > `.slide` > `.stage` structure; first slide has `is-active`.
-- [ ] Stage model: each slide wraps content in `.stage` (1280×720); fixed px type, not vw/clamp.
+- [ ] Stage model: each slide wraps content in `.stage`; the deck declares `data-slide-width` / `data-slide-height` (default `1920×1080`); fixed px type, not vw/clamp.
 - [ ] `data-editable` on all text; `data-slot` on all images.
 - [ ] `data-layout` on each `.stage`; `data-layouts` on the deck.
 - [ ] Opening the file shows slide 1; arrows navigate; **E** enters edit mode.

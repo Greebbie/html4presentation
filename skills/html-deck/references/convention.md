@@ -5,12 +5,18 @@ to match and everything "just works."
 
 ## Structure
 
-Each slide wraps its content in a fixed-size **`.stage`** (logical `1280×720`). The editor
-scales every `.stage` to fit the viewport (`transform: scale()`), so you author at a fixed
-1280×720 canvas and it renders crisp at any window size.
+Each slide wraps its content in a fixed-size **`.stage`**. The deck declares the logical
+slide size with `data-slide-width` and `data-slide-height`; new decks should default to
+`1920×1080`. The editor scales every `.stage` to fit the viewport (`transform: scale()`),
+so you author at that fixed logical canvas and it renders crisp at any window size.
+
+Decks without slide-size metadata still open with the legacy `1280×720` fallback.
 
 ```html
-<div class="deck" data-layouts="default title statement image-right center">
+<div class="deck"
+     data-layouts="default title statement image-right center"
+     data-slide-width="1920"
+     data-slide-height="1080">
   <section class="slide is-active">
     <div class="stage" data-layout="title"> ... </div>
   </section>
@@ -22,14 +28,15 @@ scales every `.stage` to fit the viewport (`transform: scale()`), so you author 
 
 | Selector / attribute | Meaning |
 |----------------------|---------|
-| `.deck` | Wrapper for all slides. Optional but recommended; the editor scopes to it. Carries `data-layouts`. |
+| `.deck` | Wrapper for all slides. Optional but recommended; the editor scopes to it. Carries `data-layouts` and slide-size metadata. |
 | `.slide` | One slide. The editor shows one at a time. Holds a single `.stage`. |
-| `.stage` | Fixed 1280×720 canvas inside the slide; holds all slide content. Carries `data-layout` and (optionally) an inline `background`. The editor scales it to fit. |
+| `.stage` | Fixed logical canvas inside the slide; holds all slide content. Carries `data-layout` and (optionally) an inline `background`. The editor sizes it from deck metadata and scales it to fit. |
 | `.is-active` | The currently visible slide. Put it on the **first** `.slide`; the editor manages it afterward. |
 | `data-editable` | Marks a text element as click-to-edit. |
 | `data-slot` | On an `<img>`: marks it swappable (click or drag-drop a file). |
 | `data-layout="x"` | Per-stage layout name (lives on `.stage`, not `.slide`); your CSS styles `.stage[data-layout="x"]`. |
 | `data-layouts="a b c"` | On `.deck`: the layout names the **Layout** button cycles through. |
+| `data-slide-width`, `data-slide-height` | On `.deck`: the logical slide size. Use `1920` and `1080` for default 16:9 decks. |
 | `data-free` | On any stage child: marks it as freely positioned (see below). Editor-managed; you normally don't hand-author it. |
 
 If a deck has **no** `data-editable` / `data-slot`, the editor auto-detects text
@@ -39,14 +46,15 @@ generating.
 ## Free positioning (editor-managed)
 
 Any element the user drags becomes `position:absolute` with `data-free` and inline
-`left/top/width/height` in stage px (`0–1280 × 0–720`). You normally generate content in
-flow inside `.stage`; the editor adds `data-free` on demand when someone drags or resizes
-an element. Don't hand-author `data-free` unless you want an element pre-placed at fixed
-coordinates. Example of an editor-produced free element:
+`left/top/width/height` in the deck's logical slide px (`0–1920 × 0–1080` for a default
+deck). You normally generate content in flow inside `.stage`; the editor adds `data-free`
+on demand when someone drags or resizes an element. Don't hand-author `data-free` unless
+you want an element pre-placed at fixed coordinates. Example of an editor-produced free
+element in a default `1920×1080` deck:
 
 ```html
 <div data-editable data-free
-     style="position:absolute;left:120px;top:520px;width:420px;height:60px;margin:0;font-size:28px">
+     style="position:absolute;left:180px;top:780px;width:630px;height:90px;margin:0;font-size:42px">
   A free-floating caption.
 </div>
 ```
@@ -54,9 +62,10 @@ coordinates. Example of an editor-produced free element:
 ## What the editor injects (don't redefine unless intentional)
 
 - Slide visibility: `.deck .slide{display:none}` and `.deck .slide.is-active{display:flex}`.
-- **Stage geometry + scaling**: `.deck .slide .stage` is sized to `1280×720` and scaled via
-  `transform: scale(var(--ed-scale))` (the editor computes `--ed-scale` to fit the viewport).
-  It also centers the stage in the slide. Don't override the stage's `width`/`height`/`transform`.
+- **Stage geometry + scaling**: `.deck .slide .stage` is sized from deck metadata and scaled
+  via `transform: scale(var(--ed-scale))` (the editor computes `--ed-scale` to fit the
+  viewport). It also centers the stage in the slide. Don't override the stage's
+  `width`/`height`/`transform`.
 - Its own toolbar, sidebar, format bar, and edit-mode outlines (all under `.ed-*` /
   `[data-ed-*]` / `[data-editor-chrome]`, stripped on save).
 
@@ -65,8 +74,9 @@ per-layout rules below — all keyed off `.stage`.
 
 ## Copy-paste CSS recipe for the standard layouts
 
-Author at the fixed 1280×720 stage: use **fixed px** sizes (not `clamp()` / `vw` / `vh`),
-because the editor scales the whole stage uniformly. This is the recipe `demo/index.html` ships.
+Author at the deck's fixed logical stage: use **fixed px** sizes (not `clamp()` / `vw` /
+`vh`), because the editor scales the whole stage uniformly. This is the `1920×1080`
+recipe `demo/index.html` ships.
 
 ```css
 :root { --bg:#0f172a; --fg:#e2e8f0; --muted:#94a3b8; --accent:#38bdf8; }
@@ -77,29 +87,37 @@ body { background:#0b0f1a; color:var(--fg);
   -webkit-font-smoothing:antialiased; }
 .deck { height:100vh; }
 
-/* The 1280×720 canvas. The editor sizes/scales/centers it — you style its inside. */
+/* The logical slide canvas. The editor sizes/scales/centers it — you style its inside. */
 .stage { background:var(--bg); display:flex; flex-direction:column;
-  justify-content:center; gap:24px; padding:72px 96px; }
+  justify-content:center; gap:36px; padding:108px 144px; }
 .stage > * { margin:0; }
-.stage h1 { font-size:72px; line-height:1.05; letter-spacing:-1.5px; margin:0; }
-.stage h2 { font-size:46px; line-height:1.1; margin:0 0 8px; }
-.stage p  { font-size:24px; line-height:1.5; color:var(--muted); margin:0; }
-.stage ul { font-size:24px; line-height:1.7; padding-left:1.2em; margin:0; }
+.stage h1 { font-size:108px; line-height:1.05; letter-spacing:0; margin:0; }
+.stage h2 { font-size:69px; line-height:1.1; margin:0 0 12px; }
+.stage p  { font-size:36px; line-height:1.5; color:var(--muted); margin:0; }
+.stage ul { font-size:36px; line-height:1.7; padding-left:1.2em; margin:0; }
 .stage .accent { color:var(--accent); }
 
 /* layouts (keyed off data-layout on .stage) */
 .stage[data-layout="title"], .stage[data-layout="statement"],
 .stage[data-layout="center"] { text-align:center; align-items:center; }
-.stage[data-layout="statement"] h1 { font-size:104px; }
+.stage[data-layout="statement"] h1 { font-size:156px; }
 .stage[data-layout="title"] .kicker { text-transform:uppercase; letter-spacing:3px;
-  font-size:15px; color:var(--accent); }
+  font-size:23px; color:var(--accent); }
 
 .stage[data-layout="image-right"] > .row { display:grid; grid-template-columns:1fr 1fr;
-  gap:64px; align-items:center; width:100%; }
+  gap:96px; align-items:center; width:100%; }
 .stage[data-layout="image-right"] figure { margin:0; }
-.stage[data-layout="image-right"] img { width:100%; height:auto; border-radius:16px;
+.stage[data-layout="image-right"] img { width:100%; height:auto; border-radius:24px;
   display:block; box-shadow:0 20px 50px rgba(0,0,0,.45); }
 ```
+
+## Export
+
+The editor can export PDF and PPTX from the **Export** dialog. Slide Size controls the
+deck's logical canvas; Export Resolution controls output pixels. Both exports render each
+slide as a bitmap at the chosen export width/height. If that export ratio differs from
+the deck's logical slide ratio, the slide is stretched to fill. PPTX output is one
+full-slide image per page, not editable PowerPoint text boxes.
 
 ## Offline image placeholder
 

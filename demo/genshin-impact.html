@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Genshin Impact — Introduction</title>
+  <title>Genshin Impact — Demo Deck</title>
   <style>
     :root{
       --bg1:#1a1142; --bg2:#0a1030; --fg:#eef1ff; --muted:#aab3d6;
@@ -16,37 +16,37 @@
       -webkit-font-smoothing:antialiased; }
     .deck{ height:100vh; }
 
-    /* 1280×720 canvas — the editor scales/centers it; we style its inside. */
-    .stage{ display:flex; flex-direction:column; justify-content:center; gap:24px;
-      padding:80px 100px; position:relative; overflow:hidden;
+    /* Logical slide canvas — the editor sizes/scales/centers it; we style its inside. */
+    .stage{ display:flex; flex-direction:column; justify-content:center; gap:36px;
+      padding:120px 150px; position:relative; overflow:hidden;
       background:
         radial-gradient(1100px 620px at 12% -12%, rgba(95,227,201,.20), transparent 60%),
         radial-gradient(1000px 720px at 112% 120%, rgba(183,148,255,.22), transparent 55%),
         linear-gradient(135deg, var(--bg1), var(--bg2)); }
     .stage > *{ margin:0; }
-    .stage h1{ font-size:86px; line-height:1.03; letter-spacing:-2px; font-weight:800; }
-    .stage h2{ font-size:46px; line-height:1.12; font-weight:700; margin-bottom:6px; }
-    .stage p{ font-size:24px; line-height:1.55; color:var(--muted); }
-    .stage ul{ font-size:23px; line-height:1.85; color:var(--muted); padding-left:1.1em; margin:0; }
+    .stage h1{ font-size:129px; line-height:1.03; letter-spacing:0; font-weight:800; }
+    .stage h2{ font-size:69px; line-height:1.12; font-weight:700; margin-bottom:9px; }
+    .stage p{ font-size:36px; line-height:1.55; color:var(--muted); }
+    .stage ul{ font-size:34px; line-height:1.85; color:var(--muted); padding-left:1.1em; margin:0; }
     .stage li::marker{ color:var(--teal); }
     .accent{ color:var(--gold); }
     .accent2{ color:var(--teal); }
-    .kicker{ text-transform:uppercase; letter-spacing:4px; font-size:15px; font-weight:700; color:var(--teal); }
+    .kicker{ text-transform:uppercase; letter-spacing:5px; font-size:23px; font-weight:700; color:var(--teal); }
 
     /* layouts (keyed off data-layout on .stage) */
     .stage[data-layout="title"], .stage[data-layout="statement"],
     .stage[data-layout="center"]{ text-align:center; align-items:center; }
-    .stage[data-layout="statement"] h1{ font-size:104px; }
+    .stage[data-layout="statement"] h1{ font-size:156px; }
 
     .stage[data-layout="image-right"] > .row{ display:grid; grid-template-columns:1.05fr .95fr;
-      gap:64px; align-items:center; width:100%; }
+      gap:96px; align-items:center; width:100%; }
     .stage[data-layout="image-right"] figure{ margin:0; }
     .stage[data-layout="image-right"] img{ width:100%; height:auto; border-radius:20px; display:block;
       box-shadow:0 24px 60px rgba(0,0,0,.5); border:1px solid rgba(255,255,255,.08); }
 
     /* element chips (slide 3) */
-    .elements{ display:flex; flex-wrap:wrap; gap:14px; justify-content:center; margin-top:10px; }
-    .chip{ font-size:21px; font-weight:600; padding:12px 22px; border-radius:999px;
+    .elements{ display:flex; flex-wrap:wrap; gap:21px; justify-content:center; margin-top:15px; }
+    .chip{ font-size:32px; font-weight:600; padding:18px 33px; border-radius:999px;
       background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.14); }
     .chip.anemo{ color:#74d8c0; }
     .chip.geo{ color:#f5b94a; }
@@ -55,17 +55,37 @@
     .chip.hydro{ color:#5fb8ff; }
     .chip.pyro{ color:#ff8a6b; }
     .chip.cryo{ color:#9fe9ff; }
+    .grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:30px; width:100%; }
+    .card{ min-height:280px; padding:38px; border-radius:30px; background:rgba(255,255,255,.075);
+      border:1px solid rgba(255,255,255,.14); box-shadow:0 20px 60px rgba(0,0,0,.22); }
+    .card p{ font-size:28px; line-height:1.45; }
+    .tag{ display:inline-flex; align-items:center; justify-content:center; min-width:74px; height:74px;
+      margin-bottom:26px; border-radius:22px; font-size:30px; font-weight:820; color:#07101f; background:var(--gold); }
+    .tag.teal{ background:var(--teal); }
+    .tag.violet{ background:var(--violet); }
+    .poster{ display:grid; grid-template-columns:.86fr 1.14fr; gap:74px; align-items:center; width:100%; }
+    .poster img{ width:100%; height:auto; border-radius:34px; display:block;
+      box-shadow:0 34px 90px rgba(0,0,0,.52); border:1px solid rgba(255,255,255,.10); }
+    .route{ border:5px dashed rgba(95,227,201,.68); border-radius:48% 52% 45% 55%; transform:rotate(-8deg); }
+    .pin{ border-radius:50%; background:#ff8a9f; box-shadow:0 0 0 14px rgba(255,138,159,.18); }
+    .note{ padding:24px 30px; border-radius:24px; background:rgba(7,10,24,.72);
+      border:1px solid rgba(255,255,255,.13); font-size:30px; line-height:1.35; color:var(--fg); }
+    .stamp{ border:2px solid rgba(255,209,102,.7); color:var(--gold); border-radius:999px;
+      padding:15px 26px; font-size:27px; font-weight:800; background:rgba(255,209,102,.10); }
   </style>
 </head>
 <body>
-  <div class="deck" data-layouts="title image-right statement center default">
+  <div class="deck"
+       data-layouts="title image-right statement center grid poster default"
+       data-slide-width="1920"
+       data-slide-height="1080">
 
     <!-- Slide 1 — title -->
     <section class="slide is-active">
       <div class="stage" data-layout="title">
         <p class="kicker" data-editable>Open-World Action RPG · HoYoverse</p>
         <h1 data-editable>Genshin <span class="accent">Impact</span></h1>
-        <p data-editable>Step into Teyvat — a vast fantasy world where the <span class="accent2">seven elements</span> shape everything you do.</p>
+        <p data-editable>A product-style briefing on Teyvat, elemental combat, and the session loop that keeps players moving.</p>
       </div>
     </section>
 
@@ -74,16 +94,16 @@
       <div class="stage" data-layout="image-right">
         <div class="row">
           <div>
-            <h2 data-editable>What is <span class="accent">Genshin Impact</span>?</h2>
+            <h2 data-editable>Explore Teyvat by <span class="accent">layers</span>, not by menu.</h2>
             <ul data-editable>
-              <li>Free-to-play open-world adventure, launched in 2020</li>
-              <li>One save across PC, mobile, and console</li>
-              <li>Build a party of four and swap heroes mid-battle</li>
-              <li>Seven nations, each bound to an element and its god</li>
+              <li>Regions feel distinct through terrain, music, and local rules.</li>
+              <li>Traversal is built around climbing, gliding, swimming, and puzzles.</li>
+              <li>Quests point forward, while sightlines and collectibles pull sideways.</li>
+              <li>One save follows the player across PC, mobile, and console.</li>
             </ul>
           </div>
           <figure>
-            <img data-slot alt="Drop a Genshin screenshot here" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Crect width='100%25' height='100%25' fill='%23141a3a'/%3E%3Ctext x='50%25' y='46%25' fill='%235fe3c9' font-family='sans-serif' font-size='30' text-anchor='middle'%3EDrop a screenshot here%3C/text%3E%3Ctext x='50%25' y='56%25' fill='%23667099' font-family='sans-serif' font-size='20' text-anchor='middle'%3E(click or drag an image in edit mode)%3C/text%3E%3C/svg%3E">
+            <img data-slot alt="Drop an open-world screenshot here" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='900' height='650'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%23141d4c'/%3E%3Cstop offset='1' stop-color='%23071324'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' rx='34' fill='url(%23g)'/%3E%3Cpath d='M60 470 C180 350 250 400 330 285 C425 150 540 210 635 120 C715 58 815 98 865 55 L865 650 L60 650 Z' fill='%232e7d7a' opacity='.78'/%3E%3Cpath d='M90 522 C240 430 380 520 510 390 C610 292 725 352 850 240' fill='none' stroke='%23ffd166' stroke-width='10' stroke-linecap='round' opacity='.85'/%3E%3Ccircle cx='512' cy='390' r='18' fill='%23ff8a9f'/%3E%3Ccircle cx='850' cy='240' r='18' fill='%235fe3c9'/%3E%3Ctext x='50%25' y='48%25' fill='%23eef1ff' font-family='Inter,Arial,sans-serif' font-size='34' font-weight='700' text-anchor='middle'%3EDrop a world screenshot%3C/text%3E%3Ctext x='50%25' y='56%25' fill='%23aab3d6' font-family='Inter,Arial,sans-serif' font-size='24' text-anchor='middle'%3Eclick or drag an image in edit mode%3C/text%3E%3C/svg%3E">
           </figure>
         </div>
       </div>
@@ -94,7 +114,7 @@
       <div class="stage" data-layout="center">
         <p class="kicker" data-editable>Elemental Combat</p>
         <h2 data-editable>Master the <span class="accent2">Seven Elements</span></h2>
-        <p data-editable>Mix elements to trigger reactions — Vaporize, Overload, Freeze, Bloom and more turn the tide of every fight.</p>
+        <p data-editable>Players learn a small vocabulary, then combine it through shields, weather, enemy types, and party rotations.</p>
         <div class="elements">
           <span class="chip anemo" data-editable>Anemo</span>
           <span class="chip geo" data-editable>Geo</span>
@@ -104,6 +124,60 @@
           <span class="chip pyro" data-editable>Pyro</span>
           <span class="chip cryo" data-editable>Cryo</span>
         </div>
+      </div>
+    </section>
+
+    <!-- Slide 4 — loop -->
+    <section class="slide">
+      <div class="stage" data-layout="grid">
+        <p class="kicker" data-editable>Session Loop</p>
+        <h2 data-editable>Most sessions have three clear beats.</h2>
+        <div class="grid">
+          <div class="card">
+            <div class="tag" data-editable>01</div>
+            <h2 data-editable>Spot a route</h2>
+            <p data-editable>A tower, puzzle, resource, or quest marker gives the player a near-term reason to move.</p>
+          </div>
+          <div class="card">
+            <div class="tag teal" data-editable>02</div>
+            <h2 data-editable>Switch the party</h2>
+            <p data-editable>Element coverage and movement tools turn the route into a small team-planning problem.</p>
+          </div>
+          <div class="card">
+            <div class="tag violet" data-editable>03</div>
+            <h2 data-editable>Spend the reward</h2>
+            <p data-editable>Artifacts, ascension materials, and characters convert exploration back into progression.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Slide 5 — free-positioned poster -->
+    <section class="slide">
+      <div class="stage" data-layout="poster">
+        <div class="poster">
+          <div>
+            <p class="kicker" data-editable>Editable Poster</p>
+            <h2 data-editable>Route planning makes a good stress test.</h2>
+            <p data-editable>Swap the map image, move the route, resize the callouts, then export the final poster as PDF or PPTX.</p>
+          </div>
+          <figure>
+            <img data-slot alt="Drop a travel poster image here" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='980' height='720'%3E%3Cdefs%3E%3ClinearGradient id='sky' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop stop-color='%23233b78'/%3E%3Cstop offset='.55' stop-color='%23151b40'/%3E%3Cstop offset='1' stop-color='%23090d1d'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='100%25' height='100%25' rx='36' fill='url(%23sky)'/%3E%3Ccircle cx='760' cy='132' r='62' fill='%23ffd166' opacity='.9'/%3E%3Cpath d='M0 565 C175 430 280 505 395 350 C522 178 654 305 760 204 C850 118 938 170 980 130 L980 720 L0 720 Z' fill='%23336f6a'/%3E%3Cpath d='M0 620 C180 520 330 590 500 470 C648 365 786 458 980 330 L980 720 L0 720 Z' fill='%23234d67'/%3E%3Ctext x='50%25' y='50%25' fill='%23eef1ff' font-family='Inter,Arial,sans-serif' font-size='34' font-weight='700' text-anchor='middle'%3EDrop travel art%3C/text%3E%3C/svg%3E">
+          </figure>
+        </div>
+        <div class="route" data-free style="position:absolute;left:1205px;top:285px;width:460px;height:330px;margin:0"></div>
+        <div class="pin" data-free style="position:absolute;left:1395px;top:435px;width:36px;height:36px;margin:0"></div>
+        <div class="note" data-editable data-free style="position:absolute;left:1180px;top:690px;width:520px;height:126px;margin:0">Drag me: this callout is already free-positioned.</div>
+        <div class="stamp" data-editable data-free style="position:absolute;left:190px;top:842px;width:330px;height:76px;margin:0">Teyvat field note</div>
+      </div>
+    </section>
+
+    <!-- Slide 6 — export -->
+    <section class="slide">
+      <div class="stage" data-layout="statement">
+        <p class="kicker" data-editable>Export Check</p>
+        <h1 data-editable>One HTML deck. High-resolution PDF and image-based PPTX.</h1>
+        <p data-editable>Set export size to 3840×2160 for 4K output, or stretch to a custom page size when needed.</p>
       </div>
     </section>
 
@@ -170,7 +244,7 @@
   }
 
   // ---- state ----------------------------------------------------------------
-  var state = { mode: 'present', index: 0, dirty: false, handle: null, presenting: false };
+  var state = { mode: 'present', index: 0, dirty: false, handle: null, presenting: false, exporting: false, exportMessage: '', exportFormat: 'pdf' };
   var ui = {};
   function markDirty() { state.dirty = true; updateUI(); }
 
@@ -179,13 +253,13 @@
     var css = [
       '.deck .slide{display:none}',
       // The active slide MUST fill the viewport height, else it collapses to the stage's
-      // 720px layout box and sits at the top — then the scaled stage anchors at y=360
+      // unscaled layout box and sits at the top — then the scaled stage anchors off-center
       // instead of the screen center, clipping the top and leaving a black band at the
       // bottom. min-height:100vh makes justify-content:center actually center the stage.
       '.deck .slide.is-active{display:flex;flex-direction:column;min-height:100vh}',
       '.deck{position:relative;overflow:hidden;background:#0b0f1a}',
       '.deck .slide{align-items:center;justify-content:center;padding:0}',
-      '.deck .slide .stage{position:relative;width:1280px;height:720px;flex:0 0 auto;'
+      '.deck .slide .stage{position:relative;width:var(--ed-slide-w,1280px);height:var(--ed-slide-h,720px);flex:0 0 auto;'
       + 'transform-origin:center center;transform:scale(var(--ed-scale,1));overflow:hidden}',
       '.deck .slide .stage>*{max-width:none}',
       '.ed-bar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:2147483000;',
@@ -204,6 +278,9 @@
       '.ed-b.on{background:#38bdf8;color:#04263a}',
       '.ed-b.pri{background:#34d399;color:#053527}',
       '.ed-b[disabled]{opacity:.4;cursor:default}',
+      '.ed-num{width:76px;border:0;border-radius:999px;padding:7px 9px;background:rgba(255,255,255,.12);'
+      +'color:inherit;font:500 13px/1 system-ui;text-align:right}',
+      '.ed-num:focus{outline:2px solid #38bdf8;outline-offset:1px}',
       '.ed-ic{padding:7px 10px;font-size:16px;line-height:1}',
       '.ed-c{min-width:48px;text-align:center;font-variant-numeric:tabular-nums;opacity:.85}',
       '.ed-s{color:#fbbf24;font-size:13px;min-width:8px}',
@@ -247,16 +324,16 @@
       +'overflow-y:auto;display:none;gap:10px;flex-direction:column}'
       ,'body.ed-editing .ed-rail{display:flex}'
       ,'body.ed-editing{padding-left:168px}'
-      ,'.ed-thumb{position:relative;width:148px;height:83px;border-radius:6px;overflow:hidden;'
+      ,'.ed-thumb{position:relative;width:var(--ed-thumb-w,148px);height:var(--ed-thumb-h,83px);border-radius:6px;overflow:hidden;'
       +'border:2px solid transparent;cursor:pointer;flex:0 0 auto;background:#000}'
       ,'.ed-thumb.cur{border-color:#38bdf8}'
-      ,'.ed-thumb .ed-thumb-scale{position:absolute;left:0;top:0;width:1280px;height:720px;'
-      +'transform:scale(.115625);transform-origin:top left;pointer-events:none}'
+      ,'.ed-thumb .ed-thumb-scale{position:absolute;left:0;top:0;width:var(--ed-slide-w,1280px);height:var(--ed-slide-h,720px);'
+      +'transform:scale(var(--ed-thumb-scale,.115625));transform-origin:top left;pointer-events:none}'
       // The cloned stage in a thumbnail lives outside `.deck .slide`, so the injected
       // `.deck .slide .stage{width/height}` sizing rule never matches it — it would
       // collapse to content height and leak the .ed-thumb #000 background as a black
-      // band. Re-assert the 1280x720 box (and position/overflow) on the clone here.
-      ,'.ed-thumb .ed-thumb-scale>*{position:relative;width:1280px;height:720px;overflow:hidden;transform:none;margin:0}'
+      // band. Re-assert the current slide box (and position/overflow) on the clone here.
+      ,'.ed-thumb .ed-thumb-scale>*{position:relative;width:var(--ed-slide-w,1280px);height:var(--ed-slide-h,720px);overflow:hidden;transform:none;margin:0}'
       ,'.ed-thumb .ed-thumb-num{position:absolute;left:4px;bottom:2px;font:600 10px system-ui;'
       +'color:#cbd5e1;background:rgba(0,0,0,.5);padding:0 4px;border-radius:3px;z-index:2}'
       ,'.ed-thumb.ed-drop-before{box-shadow:0 -3px 0 #38bdf8}'
@@ -267,6 +344,29 @@
       ,'.ed-tpl-menu button{appearance:none;border:0;background:transparent;color:#e2e8f0;'
       +'text-align:left;padding:7px 12px;border-radius:6px;cursor:pointer;font:500 13px system-ui}'
       ,'.ed-tpl-menu button:hover{background:rgba(255,255,255,.14)}'
+      ,'.ed-modal-backdrop{position:fixed;inset:0;z-index:2147483002;display:none;align-items:center;justify-content:center;'
+      +'background:rgba(2,6,23,.58);backdrop-filter:blur(4px);font:500 14px/1.2 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#e5e7eb}'
+      ,'.ed-modal-backdrop.on{display:flex}'
+      ,'.ed-modal{width:min(520px,calc(100vw - 32px));border:1px solid rgba(148,163,184,.24);border-radius:14px;'
+      +'background:#111827;box-shadow:0 24px 80px rgba(0,0,0,.55);padding:18px}'
+      ,'.ed-modal-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}'
+      ,'.ed-modal-title{font:700 18px/1.1 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;color:#f8fafc}'
+      ,'.ed-modal-x{appearance:none;border:0;border-radius:8px;background:transparent;color:#cbd5e1;cursor:pointer;font:700 20px/1;padding:6px 8px}'
+      ,'.ed-modal-x:hover{background:rgba(255,255,255,.1);color:#fff}'
+      ,'.ed-modal-row{display:grid;grid-template-columns:110px 1fr;gap:12px;align-items:center;margin:12px 0}'
+      ,'.ed-modal-row>label{color:#cbd5e1}'
+      ,'.ed-seg{display:flex;gap:6px;align-items:center;flex-wrap:wrap}'
+      ,'.ed-seg button{appearance:none;border:0;border-radius:999px;padding:8px 12px;background:rgba(255,255,255,.1);'
+      +'color:#e5e7eb;cursor:pointer;font:inherit}'
+      ,'.ed-seg button.on{background:#38bdf8;color:#04263a}'
+      ,'.ed-select{width:100%;border:0;border-radius:10px;padding:9px 11px;background:rgba(255,255,255,.1);color:#f8fafc;font:inherit}'
+      ,'.ed-select option{color:#111}'
+      ,'.ed-size-row{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:center}'
+      ,'.ed-size-row .ed-num{width:100%;border-radius:10px;padding:9px 10px;text-align:right}'
+      ,'.ed-size-row span{color:#94a3b8}'
+      ,'.ed-modal-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:18px}'
+      ,'.ed-modal-actions{display:flex;gap:8px;align-items:center}'
+      ,'.ed-export-status{color:#fbbf24;min-height:17px;font-size:13px}'
       // one-time discoverability hint chip (present mode only)
       ,'.ed-hint{position:fixed;bottom:64px;left:50%;transform:translateX(-50%);z-index:2147483000;'
       +'padding:8px 14px;border-radius:999px;background:rgba(17,24,39,.88);color:#e2e8f0;'
@@ -285,15 +385,75 @@
   }
 
   // ---- stage scaling ---------------------------------------------------------
-  var STAGE_W = 1280, STAGE_H = 720, RAIL_W = 168;
+  var DEFAULT_STAGE_W = 1920, DEFAULT_STAGE_H = 1080;
+  var LEGACY_STAGE_W = 1280, LEGACY_STAGE_H = 720, RAIL_W = 168;
+  function readPositiveInt(v) {
+    var n = parseInt(v, 10);
+    return isFinite(n) && n > 0 ? n : null;
+  }
+  function slideSize(root) {
+    var d = root || deckRoot();
+    var w = readPositiveInt(d.getAttribute && d.getAttribute('data-slide-width'));
+    var h = readPositiveInt(d.getAttribute && d.getAttribute('data-slide-height'));
+    if (w && h) return { w: w, h: h, legacy: false };
+    return { w: LEGACY_STAGE_W, h: LEGACY_STAGE_H, legacy: true };
+  }
+  function setSlideVars(size) {
+    var d = deckRoot();
+    d.style.setProperty('--ed-slide-w', size.w + 'px');
+    d.style.setProperty('--ed-slide-h', size.h + 'px');
+  }
   function fitStages() {
+    var size = slideSize();
+    setSlideVars(size);
     // In edit mode the rail occupies the left RAIL_W px (body padding-left), so fit
     // the stage into the remaining width — otherwise it hides under the rail / clips.
     var availW = window.innerWidth - (doc.body.classList.contains('ed-editing') ? RAIL_W : 0);
-    var s = Math.min(availW / STAGE_W, window.innerHeight / STAGE_H);
+    var s = Math.min(availW / size.w, window.innerHeight / size.h);
     qsa('.stage', deckRoot()).forEach(function (st) {
       st.style.setProperty('--ed-scale', String(s));
+      st.style.setProperty('--ed-slide-w', size.w + 'px');
+      st.style.setProperty('--ed-slide-h', size.h + 'px');
     });
+  }
+  function scaleFreeGeometry(oldSize, newSize) {
+    var sx = newSize.w / oldSize.w, sy = newSize.h / oldSize.h;
+    qsa('.stage > [data-free]', deckRoot()).forEach(function (n) {
+      [['left', sx], ['width', sx], ['top', sy], ['height', sy]].forEach(function (p) {
+        var val = parseFloat(n.style[p[0]]);
+        if (isFinite(val)) n.style[p[0]] = Math.round(val * p[1]) + 'px';
+      });
+    });
+  }
+  function setDeckSlideSize(w, h) {
+    w = Math.round(+w); h = Math.round(+h);
+    if (!isFinite(w) || !isFinite(h) || w < 320 || h < 180 || w > 7680 || h > 4320) {
+      window.alert('Slide size must be between 320x180 and 7680x4320.');
+      return false;
+    }
+    var oldSize = slideSize();
+    if (oldSize.w === w && oldSize.h === h && !oldSize.legacy) return true;
+    flushPending();
+    deckRoot().setAttribute('data-slide-width', String(w));
+    deckRoot().setAttribute('data-slide-height', String(h));
+    scaleFreeGeometry(oldSize, { w: w, h: h });
+    fitStages();
+    if (sel.el) positionSelBox();
+    pushHistory();
+    markDirty();
+    updateSizeInputs();
+    if (isExportOpen() && ui.exportPreset && ui.exportPreset.value === 'slide') updateExportSizeFields();
+    return true;
+  }
+  function applySlideSizeFromUI() {
+    if (!ui.sizeW || !ui.sizeH) return;
+    setDeckSlideSize(ui.sizeW.value, ui.sizeH.value);
+  }
+  function updateSizeInputs() {
+    if (!ui.sizeW || !ui.sizeH) return;
+    var size = slideSize();
+    ui.sizeW.value = String(size.w);
+    ui.sizeH.value = String(size.h);
   }
 
   // ---- history (undo/redo) ---------------------------------------------------
@@ -776,7 +936,8 @@
   var guideEls = [];
   function snapTargets(exclude) {
     var stage = activeStage();
-    var xs = [0, STAGE_W / 2, STAGE_W], ys = [0, STAGE_H / 2, STAGE_H];
+    var size = slideSize();
+    var xs = [0, size.w / 2, size.w], ys = [0, size.h / 2, size.h];
     if (stage) {
       qsa('.stage > *', stage).forEach(function (n) {
         if (n === exclude || (n.hasAttribute && n.hasAttribute('data-editor-chrome'))) return;
@@ -949,25 +1110,32 @@
   };
 
   // ---- insert objects --------------------------------------------------------
+  function stageSizeScale() {
+    var size = slideSize();
+    return Math.min(size.w / LEGACY_STAGE_W, size.h / LEGACY_STAGE_H);
+  }
   function placeFree(node, w, h) {
     var stage = activeStage(); if (!stage) return null;
+    var size = slideSize();
     node.setAttribute('data-free', '');
     node.style.position = 'absolute';
-    node.style.left = Math.round((STAGE_W - w) / 2) + 'px';
-    node.style.top = Math.round((STAGE_H - h) / 2) + 'px';
+    node.style.left = Math.round((size.w - w) / 2) + 'px';
+    node.style.top = Math.round((size.h - h) / 2) + 'px';
     node.style.width = w + 'px'; node.style.height = h + 'px'; node.style.margin = '0';
     stage.appendChild(node);
     return node;
   }
   function insertText() {
+    var k = stageSizeScale();
     var n = el('div', { 'data-editable': '', class: 'ed-textbox' }, 'Text');
-    n.style.fontSize = '32px'; n.style.color = 'var(--fg,#e2e8f0)';
-    placeFree(n, 360, 60);
+    n.style.fontSize = Math.round(32 * k) + 'px'; n.style.color = 'var(--fg,#e2e8f0)';
+    placeFree(n, Math.round(360 * k), Math.round(60 * k));
     rewire(); pushHistory(); selectEl(n); markDirty();
   }
   function insertShape(kind) {
+    var k = stageSizeScale();
     var n = el('div', { class: 'ed-shape', 'data-shape': kind });
-    placeFree(n, kind === 'line' ? 320 : 200, kind === 'line' ? 4 : 160);
+    placeFree(n, Math.round((kind === 'line' ? 320 : 200) * k), Math.max(2, Math.round((kind === 'line' ? 4 : 160) * k)));
     pushHistory(); selectEl(n); markDirty();
   }
   function insertImagePrompt() {
@@ -978,7 +1146,8 @@
       reader.onload = function () {
         var img = el('img', { 'data-slot': '', alt: '' });
         img.src = reader.result;
-        placeFree(img, 400, 300);
+        var k = stageSizeScale();
+        placeFree(img, Math.round(400 * k), Math.round(300 * k));
         rewire(); pushHistory(); selectEl(img); markDirty();
       };
       reader.readAsDataURL(f);
@@ -996,7 +1165,8 @@
     reader.onload = function () {
       var img = el('img', { 'data-slot': '', alt: '' });
       img.src = reader.result;
-      placeFree(img, 400, 300);
+      var k = stageSizeScale();
+      placeFree(img, Math.round(400 * k), Math.round(300 * k));
       rewire(); pushHistory(); selectEl(img); markDirty();
     };
     reader.readAsDataURL(f);
@@ -1030,11 +1200,14 @@
     var base = (doc.title || 'deck').trim().replace(/[^a-z0-9\-_]+/gi, '-').toLowerCase();
     return (base || 'deck') + '.html';
   }
-  function download(html) {
-    var url = URL.createObjectURL(new Blob([html], { type: 'text/html' }));
-    var a = el('a', { href: url, download: suggestedName() });
+  function downloadBlob(blob, name) {
+    var url = URL.createObjectURL(blob);
+    var a = el('a', { href: url, download: name });
     a.click();
-    URL.revokeObjectURL(url);
+    setTimeout(function () { URL.revokeObjectURL(url); }, 0);
+  }
+  function download(html) {
+    downloadBlob(new Blob([html], { type: 'text/html' }), suggestedName());
   }
   function save() {
     var html = serialize();
@@ -1064,6 +1237,355 @@
   // Harmless in production (just exposes the pure serializer).
   window.__deckSerializeForTest = function () { return serialize(); };
 
+  // ---- export (image-based PDF / PPTX) ---------------------------------------
+  function exportName(ext) { return suggestedName().replace(/\.html$/i, '') + '.' + ext; }
+  function setExporting(on, msg) {
+    state.exporting = !!on;
+    state.exportMessage = msg || '';
+    updateUI();
+  }
+  function setExportMessage(msg, ttl) {
+    state.exportMessage = msg || '';
+    updateUI();
+    if (ttl && msg) window.setTimeout(function () {
+      if (state.exportMessage === msg) { state.exportMessage = ''; updateUI(); }
+    }, ttl);
+  }
+  function isExportOpen() {
+    return !!(ui.exportModal && ui.exportModal.classList.contains('on'));
+  }
+  function exportPresetSize(key) {
+    if (key === '1080') return { w: 1920, h: 1080 };
+    if (key === '2k') return { w: 2560, h: 1440 };
+    if (key === '4k') return { w: 3840, h: 2160 };
+    if (key === 'custom') {
+      var custom = ui.exportCustom || slideSize();
+      return { w: custom.w, h: custom.h };
+    }
+    var size = slideSize();
+    return { w: size.w, h: size.h };
+  }
+  function updateExportFormatButtons() {
+    if (!ui.exportFormatButtons) return;
+    ui.exportFormatButtons.forEach(function (btn) {
+      btn.classList.toggle('on', btn.getAttribute('data-format') === state.exportFormat);
+    });
+  }
+  function selectExportFormat(format) {
+    state.exportFormat = format === 'pptx' ? 'pptx' : 'pdf';
+    updateExportFormatButtons();
+  }
+  function updateExportSizeFields() {
+    if (!ui.exportPreset || !ui.exportW || !ui.exportH) return;
+    var key = ui.exportPreset.value || 'slide';
+    var custom = key === 'custom';
+    if (!custom) {
+      var size = exportPresetSize(key);
+      ui.exportW.value = String(size.w);
+      ui.exportH.value = String(size.h);
+    }
+    ui.exportW.disabled = !custom;
+    ui.exportH.disabled = !custom;
+  }
+  function rememberCustomExportSize() {
+    var w = ui.exportW ? readPositiveInt(ui.exportW.value) : null;
+    var h = ui.exportH ? readPositiveInt(ui.exportH.value) : null;
+    if (w && h) ui.exportCustom = { w: w, h: h };
+  }
+  function exportSizeFromDialog() {
+    rememberCustomExportSize();
+    var w = ui.exportW ? readPositiveInt(ui.exportW.value) : null;
+    var h = ui.exportH ? readPositiveInt(ui.exportH.value) : null;
+    if (!w || !h || w < 320 || h < 180 || w > 7680 || h > 7680) {
+      window.alert('Export size must be between 320x180 and 7680x7680.');
+      return null;
+    }
+    return { w: w, h: h };
+  }
+  function openExportDialog() {
+    if (!ui.exportModal) return;
+    ui.exportPreset.value = 'slide';
+    selectExportFormat(state.exportFormat || 'pdf');
+    updateExportSizeFields();
+    ui.exportStatus.textContent = state.exportMessage || '';
+    ui.exportModal.classList.add('on');
+    if (ui.exportDownload) ui.exportDownload.focus();
+  }
+  function closeExportDialog() {
+    if (ui.exportModal) ui.exportModal.classList.remove('on');
+  }
+  function exportSelected() {
+    exportDeck(state.exportFormat || 'pdf', exportSizeFromDialog());
+  }
+  function bytesFromString(s) { return new TextEncoder().encode(s); }
+  function concatBytes(parts) {
+    var len = 0, i, off = 0;
+    for (i = 0; i < parts.length; i++) len += parts[i].length;
+    var out = new Uint8Array(len);
+    for (i = 0; i < parts.length; i++) { out.set(parts[i], off); off += parts[i].length; }
+    return out;
+  }
+  function dataUrlBytes(dataUrl) {
+    return fetch(dataUrl).then(function (r) { return r.arrayBuffer(); })
+      .then(function (b) { return new Uint8Array(b); });
+  }
+  function escXml(s) {
+    return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+  }
+  function pageCssText() {
+    return qsa('style').map(function (styleNode) {
+      if (styleNode.hasAttribute('data-editor-chrome')) return '';
+      return styleNode.textContent || '';
+    }).join('\n');
+  }
+  function cleanStageClone(stage, size) {
+    var clone = stage.cloneNode(true);
+    qsa('[data-editor-chrome]', clone).forEach(function (n) { n.parentNode && n.parentNode.removeChild(n); });
+    qsa('[contenteditable]', clone).forEach(function (n) { n.removeAttribute('contenteditable'); });
+    qsa('[data-ed-text]', clone).forEach(function (n) { n.removeAttribute('data-ed-text'); });
+    qsa('[data-ed-img]', clone).forEach(function (n) { n.removeAttribute('data-ed-img'); n.classList.remove('ed-over'); });
+    clone.style.setProperty('--ed-scale', '1');
+    clone.style.setProperty('--ed-slide-w', size.w + 'px');
+    clone.style.setProperty('--ed-slide-h', size.h + 'px');
+    clone.style.width = size.w + 'px';
+    clone.style.height = size.h + 'px';
+    clone.style.transform = 'none';
+    return clone;
+  }
+  function renderStageImage(stage, outW, outH) {
+    var size = slideSize();
+    var clone = cleanStageClone(stage, size);
+    var xhtml = new XMLSerializer().serializeToString(clone);
+    var sx = outW / size.w, sy = outH / size.h;
+    var css = pageCssText() + '\n.stage{width:' + size.w + 'px!important;height:' + size.h + 'px!important;transform:none!important;}';
+    var svg = '<svg xmlns="http://www.w3.org/2000/svg" width="' + outW + '" height="' + outH + '">'
+      + '<foreignObject width="' + size.w + '" height="' + size.h + '" transform="scale(' + sx + ' ' + sy + ')">'
+      + '<div xmlns="http://www.w3.org/1999/xhtml"><style>' + escXml(css) + '</style>' + xhtml + '</div>'
+      + '</foreignObject></svg>';
+    var img = new Image();
+    var loaded = new Promise(function (resolve, reject) { img.onload = resolve; img.onerror = reject; });
+    img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
+    return loaded.then(function () {
+      var canvas = doc.createElement('canvas');
+      canvas.width = outW; canvas.height = outH;
+      var ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, outW, outH);
+      var dataUrl = canvas.toDataURL('image/jpeg', 0.92);
+      return dataUrlBytes(dataUrl).then(function (bytes) {
+        return { dataUrl: dataUrl, bytes: bytes, width: outW, height: outH };
+      });
+    });
+  }
+  function renderSlideImages(outW, outH) {
+    var stages = qsa('.slide .stage', deckRoot());
+    var images = [];
+    var ready = doc.fonts && doc.fonts.ready ? doc.fonts.ready : Promise.resolve();
+    return ready.then(function () {
+      var chain = Promise.resolve();
+      stages.forEach(function (stage) {
+        chain = chain.then(function () { return renderStageImage(stage, outW, outH); })
+          .then(function (img) { images.push(img); });
+      });
+      return chain.then(function () { return images; });
+    });
+  }
+  function makePdfBlob(images, w, h) {
+    var chunks = [], offsets = [], len = 0;
+    function add(part) { chunks.push(part); len += part.length; }
+    function text(s) { return bytesFromString(s); }
+    function addObj(id, bodyParts) {
+      offsets[id] = len;
+      add(text(id + ' 0 obj\n'));
+      bodyParts.forEach(add);
+      add(text('\nendobj\n'));
+    }
+    var pageIds = [], contentIds = [], imageIds = [], next = 3;
+    images.forEach(function () { pageIds.push(next++); contentIds.push(next++); imageIds.push(next++); });
+    add(text('%PDF-1.4\n'));
+    addObj(1, [text('<< /Type /Catalog /Pages 2 0 R >>')]);
+    addObj(2, [text('<< /Type /Pages /Kids [' + pageIds.map(function (id) { return id + ' 0 R'; }).join(' ') + '] /Count ' + images.length + ' >>')]);
+    images.forEach(function (img, i) {
+      addObj(pageIds[i], [text('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' + w + ' ' + h + '] /Resources << /XObject << /Im' + (i + 1) + ' ' + imageIds[i] + ' 0 R >> >> /Contents ' + contentIds[i] + ' 0 R >>')]);
+      var stream = 'q\n' + w + ' 0 0 ' + h + ' 0 0 cm\n/Im' + (i + 1) + ' Do\nQ\n';
+      addObj(contentIds[i], [text('<< /Length ' + stream.length + ' >>\nstream\n' + stream + 'endstream')]);
+      addObj(imageIds[i], [
+        text('<< /Type /XObject /Subtype /Image /Width ' + img.width + ' /Height ' + img.height + ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' + img.bytes.length + ' >>\nstream\n'),
+        img.bytes,
+        text('\nendstream')
+      ]);
+    });
+    var xref = len;
+    add(text('xref\n0 ' + next + '\n0000000000 65535 f \n'));
+    for (var id = 1; id < next; id++) add(text(('0000000000' + offsets[id]).slice(-10) + ' 00000 n \n'));
+    add(text('trailer\n<< /Size ' + next + ' /Root 1 0 R >>\nstartxref\n' + xref + '\n%%EOF\n'));
+    return new Blob([concatBytes(chunks)], { type: 'application/pdf' });
+  }
+  function u16(n) { return new Uint8Array([n & 255, (n >>> 8) & 255]); }
+  function u32(n) { return new Uint8Array([n & 255, (n >>> 8) & 255, (n >>> 16) & 255, (n >>> 24) & 255]); }
+  var CRC_TABLE = null;
+  function crc32(bytes) {
+    if (!CRC_TABLE) {
+      CRC_TABLE = [];
+      for (var n = 0; n < 256; n++) {
+        var c = n;
+        for (var k = 0; k < 8; k++) c = (c & 1) ? (0xedb88320 ^ (c >>> 1)) : (c >>> 1);
+        CRC_TABLE[n] = c >>> 0;
+      }
+    }
+    var crc = 0xffffffff;
+    for (var i = 0; i < bytes.length; i++) crc = CRC_TABLE[(crc ^ bytes[i]) & 255] ^ (crc >>> 8);
+    return (crc ^ 0xffffffff) >>> 0;
+  }
+  function makeZip(files) {
+    var local = [], central = [], offset = 0, date = 0x0021, time = 0;
+    files.forEach(function (f) {
+      var name = bytesFromString(f.name);
+      var data = typeof f.data === 'string' ? bytesFromString(f.data) : f.data;
+      var crc = crc32(data);
+      var localHeader = concatBytes([u32(0x04034b50), u16(20), u16(0), u16(0), u16(time), u16(date), u32(crc), u32(data.length), u32(data.length), u16(name.length), u16(0), name]);
+      local.push(localHeader, data);
+      var centralHeader = concatBytes([u32(0x02014b50), u16(20), u16(20), u16(0), u16(0), u16(time), u16(date), u32(crc), u32(data.length), u32(data.length), u16(name.length), u16(0), u16(0), u16(0), u16(0), u32(0), u32(offset), name]);
+      central.push(centralHeader);
+      offset += localHeader.length + data.length;
+    });
+    var centralBytes = concatBytes(central);
+    var end = concatBytes([u32(0x06054b50), u16(0), u16(0), u16(files.length), u16(files.length), u32(centralBytes.length), u32(offset), u16(0)]);
+    return concatBytes(local.concat([centralBytes, end]));
+  }
+  function relsXml(items) {
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' + items.join('') + '</Relationships>';
+  }
+  function rel(id, type, target) {
+    return '<Relationship Id="' + id + '" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/' + type + '" Target="' + target + '"/>';
+  }
+  function packageRel(id, type, target) {
+    return '<Relationship Id="' + id + '" Type="http://schemas.openxmlformats.org/package/2006/relationships/' + type + '" Target="' + target + '"/>';
+  }
+  function pptxGroupShapeXml() {
+    return '<p:nvGrpSpPr><p:cNvPr id="1" name=""/><p:cNvGrpSpPr/><p:nvPr/></p:nvGrpSpPr>'
+      + '<p:grpSpPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="0" cy="0"/><a:chOff x="0" y="0"/><a:chExt cx="0" cy="0"/></a:xfrm></p:grpSpPr>';
+  }
+  function pptxThemeXml() {
+    return '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      + '<a:theme xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" name="html4presentation">'
+      + '<a:themeElements><a:clrScheme name="html4presentation">'
+      + '<a:dk1><a:sysClr val="windowText" lastClr="000000"/></a:dk1><a:lt1><a:sysClr val="window" lastClr="FFFFFF"/></a:lt1>'
+      + '<a:dk2><a:srgbClr val="1F2937"/></a:dk2><a:lt2><a:srgbClr val="F8FAFC"/></a:lt2>'
+      + '<a:accent1><a:srgbClr val="38BDF8"/></a:accent1><a:accent2><a:srgbClr val="34D399"/></a:accent2>'
+      + '<a:accent3><a:srgbClr val="FBBF24"/></a:accent3><a:accent4><a:srgbClr val="F472B6"/></a:accent4>'
+      + '<a:accent5><a:srgbClr val="A78BFA"/></a:accent5><a:accent6><a:srgbClr val="60A5FA"/></a:accent6>'
+      + '<a:hlink><a:srgbClr val="2563EB"/></a:hlink><a:folHlink><a:srgbClr val="7C3AED"/></a:folHlink>'
+      + '</a:clrScheme><a:fontScheme name="html4presentation">'
+      + '<a:majorFont><a:latin typeface="Aptos Display"/><a:ea typeface=""/><a:cs typeface=""/></a:majorFont>'
+      + '<a:minorFont><a:latin typeface="Aptos"/><a:ea typeface=""/><a:cs typeface=""/></a:minorFont>'
+      + '</a:fontScheme><a:fmtScheme name="html4presentation">'
+      + '<a:fillStyleLst><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:fillStyleLst>'
+      + '<a:lnStyleLst><a:ln w="6350" cap="flat" cmpd="sng" algn="ctr"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:prstDash val="solid"/></a:ln><a:ln w="12700" cap="flat" cmpd="sng" algn="ctr"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:prstDash val="solid"/></a:ln><a:ln w="19050" cap="flat" cmpd="sng" algn="ctr"><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:prstDash val="solid"/></a:ln></a:lnStyleLst>'
+      + '<a:effectStyleLst><a:effectStyle><a:effectLst/></a:effectStyle><a:effectStyle><a:effectLst/></a:effectStyle><a:effectStyle><a:effectLst/></a:effectStyle></a:effectStyleLst>'
+      + '<a:bgFillStyleLst><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:solidFill><a:schemeClr val="phClr"/></a:solidFill><a:solidFill><a:schemeClr val="phClr"/></a:solidFill></a:bgFillStyleLst>'
+      + '</a:fmtScheme></a:themeElements><a:objectDefaults/><a:extraClrSchemeLst/></a:theme>';
+  }
+  function makePptxBlob(images, w, h) {
+    var slideCx = 9144000;
+    var slideCy = Math.round(slideCx * h / w);
+    var files = [], slideRels = [], sldIds = [], slideOverrides = [];
+    var masterRid = 'rId' + (images.length + 1);
+    var now = new Date().toISOString().replace(/\.\d{3}Z$/, 'Z');
+    function add(name, data) { files.push({ name: name, data: data }); }
+    add('_rels/.rels', relsXml([
+      rel('rId1', 'officeDocument', 'ppt/presentation.xml'),
+      packageRel('rId2', 'metadata/core-properties', 'docProps/core.xml'),
+      rel('rId3', 'extended-properties', 'docProps/app.xml')
+    ]));
+    add('docProps/core.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>' + escXml(doc.title || 'Deck') + '</dc:title><dc:creator>html4presentation</dc:creator><cp:lastModifiedBy>html4presentation</cp:lastModifiedBy><dcterms:created xsi:type="dcterms:W3CDTF">' + now + '</dcterms:created><dcterms:modified xsi:type="dcterms:W3CDTF">' + now + '</dcterms:modified></cp:coreProperties>');
+    add('docProps/app.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Properties xmlns="http://schemas.openxmlformats.org/officeDocument/2006/extended-properties" xmlns:vt="http://schemas.openxmlformats.org/officeDocument/2006/docPropsVTypes"><Application>html4presentation</Application><PresentationFormat>Custom</PresentationFormat><Slides>' + images.length + '</Slides><Notes>0</Notes><HiddenSlides>0</HiddenSlides></Properties>');
+    images.forEach(function (img, i) {
+      var n = i + 1;
+      add('ppt/media/image' + n + '.jpg', img.bytes);
+      add('ppt/slides/slide' + n + '.xml',
+        '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+        + '<p:sld xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">'
+        + '<p:cSld><p:spTree>' + pptxGroupShapeXml()
+        + '<p:pic><p:nvPicPr><p:cNvPr id="2" name="Slide image ' + n + '"/><p:cNvPicPr><a:picLocks noChangeAspect="0"/></p:cNvPicPr><p:nvPr/></p:nvPicPr><p:blipFill><a:blip r:embed="rId1" cstate="print"/><a:stretch><a:fillRect/></a:stretch></p:blipFill><p:spPr><a:xfrm><a:off x="0" y="0"/><a:ext cx="' + slideCx + '" cy="' + slideCy + '"/></a:xfrm><a:prstGeom prst="rect"><a:avLst/></a:prstGeom></p:spPr></p:pic>'
+        + '</p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sld>');
+      add('ppt/slides/_rels/slide' + n + '.xml.rels', relsXml([
+        rel('rId1', 'image', '../media/image' + n + '.jpg'),
+        rel('rId2', 'slideLayout', '../slideLayouts/slideLayout1.xml')
+      ]));
+      slideRels.push(rel('rId' + n, 'slide', 'slides/slide' + n + '.xml'));
+      sldIds.push('<p:sldId id="' + (256 + i) + '" r:id="rId' + n + '"/>');
+      slideOverrides.push('<Override PartName="/ppt/slides/slide' + n + '.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slide+xml"/>');
+    });
+    slideRels.push(rel(masterRid, 'slideMaster', 'slideMasters/slideMaster1.xml'));
+    slideRels.push(rel('rId' + (images.length + 2), 'presProps', 'presProps.xml'));
+    slideRels.push(rel('rId' + (images.length + 3), 'viewProps', 'viewProps.xml'));
+    slideRels.push(rel('rId' + (images.length + 4), 'tableStyles', 'tableStyles.xml'));
+    add('ppt/_rels/presentation.xml.rels', relsXml(slideRels));
+    add('ppt/presentation.xml',
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      + '<p:presentation xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">'
+      + '<p:sldMasterIdLst><p:sldMasterId id="2147483648" r:id="' + masterRid + '"/></p:sldMasterIdLst>'
+      + '<p:sldIdLst>' + sldIds.join('') + '</p:sldIdLst><p:sldSz cx="' + slideCx + '" cy="' + slideCy + '" type="custom"/><p:notesSz cx="6858000" cy="9144000"/></p:presentation>');
+    add('ppt/slideMasters/slideMaster1.xml',
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      + '<p:sldMaster xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main">'
+      + '<p:cSld><p:spTree>' + pptxGroupShapeXml() + '</p:spTree></p:cSld>'
+      + '<p:clrMap bg1="lt1" tx1="dk1" bg2="lt2" tx2="dk2" accent1="accent1" accent2="accent2" accent3="accent3" accent4="accent4" accent5="accent5" accent6="accent6" hlink="hlink" folHlink="folHlink"/>'
+      + '<p:sldLayoutIdLst><p:sldLayoutId id="2147483649" r:id="rId1"/></p:sldLayoutIdLst><p:txStyles><p:titleStyle/><p:bodyStyle/><p:otherStyle/></p:txStyles></p:sldMaster>');
+    add('ppt/slideMasters/_rels/slideMaster1.xml.rels', relsXml([
+      rel('rId1', 'slideLayout', '../slideLayouts/slideLayout1.xml'),
+      rel('rId2', 'theme', '../theme/theme1.xml')
+    ]));
+    add('ppt/slideLayouts/slideLayout1.xml',
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>'
+      + '<p:sldLayout xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships" xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main" type="blank" preserve="1">'
+      + '<p:cSld name="Blank"><p:spTree>' + pptxGroupShapeXml() + '</p:spTree></p:cSld><p:clrMapOvr><a:masterClrMapping/></p:clrMapOvr></p:sldLayout>');
+    add('ppt/slideLayouts/_rels/slideLayout1.xml.rels', relsXml([
+      rel('rId1', 'slideMaster', '../slideMasters/slideMaster1.xml')
+    ]));
+    add('ppt/theme/theme1.xml', pptxThemeXml());
+    add('ppt/presProps.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><p:presentationPr xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"/>');
+    add('ppt/viewProps.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><p:viewPr xmlns:p="http://schemas.openxmlformats.org/presentationml/2006/main"/>');
+    add('ppt/tableStyles.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><a:tblStyleLst xmlns:a="http://schemas.openxmlformats.org/drawingml/2006/main" def="{5C22544A-7EE6-4342-B048-85BDC9FD1C3A}"/>');
+    add('[Content_Types].xml',
+      '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">'
+      + '<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Default Extension="jpg" ContentType="image/jpeg"/>'
+      + '<Override PartName="/ppt/presentation.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.presentation.main+xml"/>'
+      + '<Override PartName="/ppt/slideMasters/slideMaster1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideMaster+xml"/>'
+      + '<Override PartName="/ppt/slideLayouts/slideLayout1.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.slideLayout+xml"/>'
+      + '<Override PartName="/ppt/theme/theme1.xml" ContentType="application/vnd.openxmlformats-officedocument.theme+xml"/>'
+      + '<Override PartName="/ppt/presProps.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.presProps+xml"/>'
+      + '<Override PartName="/ppt/viewProps.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.viewProps+xml"/>'
+      + '<Override PartName="/ppt/tableStyles.xml" ContentType="application/vnd.openxmlformats-officedocument.presentationml.tableStyles+xml"/>'
+      + '<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/>'
+      + '<Override PartName="/docProps/app.xml" ContentType="application/vnd.openxmlformats-officedocument.extended-properties+xml"/>'
+      + slideOverrides.join('') + '</Types>');
+    return new Blob([makeZip(files)], { type: 'application/vnd.openxmlformats-officedocument.presentationml.presentation' });
+  }
+  function exportDeck(kind, size) {
+    if (!size) return;
+    setExporting(true, 'Exporting ' + kind.toUpperCase() + '...');
+    renderSlideImages(size.w, size.h).then(function (images) {
+      var blob = kind === 'pdf' ? makePdfBlob(images, size.w, size.h) : makePptxBlob(images, size.w, size.h);
+      downloadBlob(blob, exportName(kind));
+      setExportMessage('Downloaded ' + kind.toUpperCase(), 2500);
+    }).catch(function (err) {
+      window.alert('Export failed: ' + (err && err.message ? err.message : err));
+      setExportMessage('Export failed', 3500);
+    }).then(function () {
+      setExporting(false, state.exportMessage);
+    });
+  }
+  function exportPdf() { exportDeck('pdf', exportSizeFromDialog()); }
+  function exportPptx() { exportDeck('pptx', exportSizeFromDialog()); }
+  window.__deckExportForTest = {
+    slideSize: function () { return slideSize(); },
+    renderSlideImages: renderSlideImages,
+    makePdfBlob: function (w, h) { return renderSlideImages(w, h).then(function (imgs) { return makePdfBlob(imgs, w, h); }); },
+    makePptxBlob: function (w, h) { return renderSlideImages(w, h).then(function (imgs) { return makePptxBlob(imgs, w, h); }); }
+  };
+
   // ---- thumbnails ------------------------------------------------------------
   function buildRail() {
     ui.rail = el('div', { class: 'ed-rail', 'data-editor-chrome': true });
@@ -1072,14 +1594,25 @@
   var dragThumb = null;
   function renderRail() {
     if (!ui.rail) return;
+    var size = slideSize();
+    var thumbW = 148;
+    var thumbH = Math.max(40, Math.round(thumbW * size.h / size.w));
+    var thumbScale = thumbW / size.w;
     ui.rail.innerHTML = '';
     slides().forEach(function (s, i) {
       var stage = qs('.stage', s) || s;
       var scaleWrap = el('div', { class: 'ed-thumb-scale' });
+      scaleWrap.style.setProperty('--ed-slide-w', size.w + 'px');
+      scaleWrap.style.setProperty('--ed-slide-h', size.h + 'px');
+      scaleWrap.style.setProperty('--ed-thumb-scale', String(thumbScale));
       scaleWrap.appendChild(stage.cloneNode(true));
       var t = el('div', { class: 'ed-thumb' + (i === state.index ? ' cur' : ''), 'data-i': i, draggable: 'true' }, [
         scaleWrap, el('div', { class: 'ed-thumb-num' }, String(i + 1))
       ]);
+      t.style.setProperty('--ed-thumb-w', thumbW + 'px');
+      t.style.setProperty('--ed-thumb-h', thumbH + 'px');
+      t.style.setProperty('--ed-slide-w', size.w + 'px');
+      t.style.setProperty('--ed-slide-h', size.h + 'px');
       // strip chrome that may have been cloned in
       qsa('[data-editor-chrome]', t).forEach(function (n) { if (n !== scaleWrap) n.parentNode && n.parentNode.removeChild(n); });
       t.addEventListener('click', function () { goTo(i); });
@@ -1280,13 +1813,71 @@
     if (ui.bg) { var st = activeStage(); if (st) { var c = st.style.backgroundColor || ''; if (/^rgb/.test(c)) ui.bg.value = rgbToHex(c); } }
     if (!ui.bar) return;
     ui.counter.textContent = (sl.length ? state.index + 1 : 0) + ' / ' + sl.length;
-    ui.status.textContent = state.dirty ? '● Unsaved' : '';
+    ui.status.textContent = state.exportMessage || (state.dirty ? '● Unsaved' : '');
     ui.edit.textContent = state.mode === 'edit' ? 'Done' : 'Edit';
     ui.edit.classList.toggle('on', state.mode === 'edit');
     ui.save.disabled = !state.dirty;
+    if (ui.exportBtn) ui.exportBtn.disabled = state.exporting;
+    if (ui.exportDownload) ui.exportDownload.disabled = state.exporting;
+    if (ui.exportStatus) ui.exportStatus.textContent = state.exportMessage || '';
     if (ui.undo) ui.undo.disabled = !canUndo();
     if (ui.redo) ui.redo.disabled = !canRedo();
     if (state.mode === 'edit') renderRail();
+  }
+
+  function buildExportDialog() {
+    ui.exportFormatButtons = ['pdf', 'pptx'].map(function (format) {
+      return el('button', { type: 'button', 'data-format': format, onclick: function () { selectExportFormat(format); } }, format.toUpperCase());
+    });
+    ui.exportPreset = el('select', { class: 'ed-select', title: 'Export resolution' }, [
+      el('option', { value: 'slide' }, 'Current Slide Size'),
+      el('option', { value: '1080' }, '1920 × 1080'),
+      el('option', { value: '2k' }, '2560 × 1440'),
+      el('option', { value: '4k' }, '3840 × 2160'),
+      el('option', { value: 'custom' }, 'Custom')
+    ]);
+    ui.exportPreset.addEventListener('change', updateExportSizeFields);
+    var base = slideSize();
+    ui.exportCustom = { w: base.w, h: base.h };
+    ui.exportW = el('input', { class: 'ed-num', type: 'number', min: '320', max: '7680', step: '1', title: 'Export width' });
+    ui.exportH = el('input', { class: 'ed-num', type: 'number', min: '180', max: '7680', step: '1', title: 'Export height' });
+    ui.exportW.addEventListener('input', rememberCustomExportSize);
+    ui.exportH.addEventListener('input', rememberCustomExportSize);
+    ui.exportStatus = el('span', { class: 'ed-export-status' });
+    ui.exportDownload = el('button', { class: 'ed-b pri', type: 'button', onclick: exportSelected, title: 'Download export' }, 'Download');
+    ui.exportModal = el('div', { class: 'ed-modal-backdrop', 'data-editor-chrome': true }, [
+      el('div', { class: 'ed-modal', role: 'dialog', 'aria-modal': 'true', 'aria-label': 'Export' }, [
+        el('div', { class: 'ed-modal-head' }, [
+          el('div', { class: 'ed-modal-title' }, 'Export'),
+          el('button', { class: 'ed-modal-x', type: 'button', onclick: closeExportDialog, title: 'Close export dialog' }, '×')
+        ]),
+        el('div', { class: 'ed-modal-row' }, [
+          el('label', {}, 'Format'),
+          el('div', { class: 'ed-seg' }, ui.exportFormatButtons)
+        ]),
+        el('div', { class: 'ed-modal-row' }, [
+          el('label', {}, 'Resolution'),
+          ui.exportPreset
+        ]),
+        el('div', { class: 'ed-modal-row' }, [
+          el('label', {}, 'Pixels'),
+          el('div', { class: 'ed-size-row' }, [ui.exportW, el('span', {}, '×'), ui.exportH])
+        ]),
+        el('div', { class: 'ed-modal-foot' }, [
+          ui.exportStatus,
+          el('div', { class: 'ed-modal-actions' }, [
+            el('button', { class: 'ed-b', type: 'button', onclick: closeExportDialog }, 'Cancel'),
+            ui.exportDownload
+          ])
+        ])
+      ])
+    ]);
+    ui.exportModal.addEventListener('mousedown', function (e) {
+      if (e.target === ui.exportModal) closeExportDialog();
+    });
+    doc.body.appendChild(ui.exportModal);
+    selectExportFormat(state.exportFormat);
+    updateExportSizeFields();
   }
 
   function buildBar() {
@@ -1295,6 +1886,7 @@
     ui.status = el('span', { class: 'ed-s' });
     ui.edit = b('', 'Edit', toggleMode, 'Toggle edit mode (E)');
     ui.save = b('pri', 'Save', save, 'Save to file (Ctrl/Cmd+S)');
+    ui.exportBtn = b('', 'Export', openExportDialog, 'Export PDF or PPTX');
     ui.undo = b('ed-ic', '↶', undo, 'Undo (Ctrl+Z)');
     ui.redo = b('ed-ic', '↷', redo, 'Redo (Ctrl+Y)');
     var histGrp = el('div', { class: 'ed-grp ed-edit-only' }, [ui.undo, ui.redo]);
@@ -1308,6 +1900,15 @@
     ui.bg = el('input', { id: 'ed-bg', type: 'color', title: 'Slide background', class: 'ed-bgpick' });
     ui.bg.addEventListener('change', function () { setStageBg(ui.bg.value); });
     var bgGrp = el('div', { class: 'ed-grp' }, [el('span', { class: 'ed-c' }, 'BG'), ui.bg]);
+    ui.sizeW = el('input', { class: 'ed-num', type: 'number', min: '320', max: '7680', step: '1', title: 'Slide width' });
+    ui.sizeH = el('input', { class: 'ed-num', type: 'number', min: '180', max: '4320', step: '1', title: 'Slide height' });
+    var sizeGrp = el('div', { class: 'ed-grp' }, [
+      el('span', { class: 'ed-c' }, 'Size'),
+      ui.sizeW,
+      ui.sizeH,
+      b('', 'Apply', applySlideSizeFromUI, 'Apply slide size')
+    ]);
+    updateSizeInputs();
     ui.tplBtn = b('', '▦ Layout+', function () { toggleTplMenu(ui.tplBtn); }, 'Add slide from template');
     var tplGrp = el('div', { class: 'ed-grp' }, [ui.tplBtn]);
     // TOP BAR — creation / edit tools. The whole bar is edit-only (shown via
@@ -1316,6 +1917,7 @@
       histGrp,
       insertGrp,
       bgGrp,
+      sizeGrp,
       tplGrp
     ]);
     doc.body.appendChild(ui.topbar);
@@ -1334,7 +1936,7 @@
         b('', '− Slide', deleteSlide, 'Delete this slide'),
         b('', 'Layout', function () { cycleLayout(1); }, 'Cycle layout')
       ]),
-      el('div', { class: 'ed-grp' }, [ui.status, ui.edit, ui.save])
+      el('div', { class: 'ed-grp' }, [ui.status, ui.exportBtn, ui.edit, ui.save])
     ]);
     doc.body.appendChild(ui.bar);
   }
@@ -1342,6 +1944,7 @@
   function onKey(e) {
     var typing = e.target && e.target.isContentEditable;
     if (ui.hint) hideHint(); // any keypress dismisses the one-time discoverability hint
+    if (isExportOpen() && e.key === 'Escape') { e.preventDefault(); closeExportDialog(); return; }
     // While presenting fullscreen: a self-contained nav loop. Esc/F exit; everything
     // else advances/retreats. Nothing here mutates the deck, so no history concerns.
     if (state.presenting) {
@@ -1403,6 +2006,7 @@
       _resizeTimer = setTimeout(fitStages, 50);
     });
     buildBar();
+    buildExportDialog();
     buildFormatBar();
     buildRail();
     buildTplMenu();
@@ -1436,6 +2040,3 @@
   else boot();
 })();
 </script>
-
-</body>
-</html>

@@ -1,7 +1,7 @@
 # Dependencies
 node_modules/
 
-# Dev test harness (Playwright) — not part of the shipped product
+# Dev test harness/output (Playwright) — not part of the shipped product
 tests/
 package.json
 package-lock.json

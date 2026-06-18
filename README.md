@@ -13,6 +13,7 @@ A deck is one self-contained `.html` file: inline CSS, your slides, and a drop-i
 - **Author tools** — undo/redo, text formatting, per-slide backgrounds, and a thumbnail sidebar.
 - **Present** — press **F** for fullscreen; navigate with `←` `→` `Space`.
 - **Save** — `Ctrl`/`Cmd`+`S`. Chromium writes straight back to the file; other browsers download an updated copy.
+- **Export** — choose a resolution preset or custom pixel size, then download PDF or image-based PPTX.
 - **No dependencies** — vanilla JS in one classic `<script>`; runs from `file://`.
 
 ## Quick start
@@ -23,7 +24,7 @@ Open the reference deck and try it:
 demo/index.html
 ```
 
-Press **E** to edit, **F** to present, `Ctrl`/`Cmd`+`S` to save. A second example lives at `demo/genshin-impact.html`.
+Press **E** to edit, **F** to present, `Ctrl`/`Cmd`+`S` to save, or open **Export** for PDF/PPTX. A second example lives at `demo/genshin-impact.html`.
 
 ## Generate a deck with an agent
 
@@ -37,7 +38,10 @@ Ask for something like *“make me a 6-slide deck about X.”* The agent emits o
 ## Authoring contract
 
 ```html
-<div class="deck" data-layouts="default title statement image-right center">
+<div class="deck"
+     data-layouts="default title statement image-right center"
+     data-slide-width="1920"
+     data-slide-height="1080">
   <section class="slide is-active">
     <div class="stage" data-layout="title">
       <h1 data-editable>Headline</h1>
@@ -48,9 +52,10 @@ Ask for something like *“make me a 6-slide deck about X.”* The agent emits o
 </div>
 ```
 
-- `.deck` › `.slide` › `.stage` — the first slide carries `is-active`; each `.stage` is a fixed 1280×720 canvas the editor scales to fit.
+- `.deck` › `.slide` › `.stage` — the first slide carries `is-active`; the deck declares a logical slide size and the editor scales each `.stage` to fit the viewport.
 - `data-editable` marks editable text; `data-slot` marks swappable images.
 - `data-layout` sets a stage's layout; `data-layouts` lists what **Layout** cycles through.
+- `data-slide-width` / `data-slide-height` set the deck's logical slide size; new decks should default to `1920×1080`. PDF/PPTX export can render at any requested pixel size, and PPTX output is full-slide images rather than editable PowerPoint text boxes.
 
 Full reference: [`skills/html-deck/references/convention.md`](skills/html-deck/references/convention.md).
 
