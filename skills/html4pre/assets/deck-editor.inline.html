@@ -75,6 +75,7 @@
       '.deck{position:relative;overflow:hidden;background:#0b0f1a}',
       '.deck .slide{align-items:center;justify-content:center;padding:0}',
       '.deck .slide .stage{position:relative;width:var(--ed-slide-w,1280px);height:var(--ed-slide-h,720px);flex:0 0 auto;'
+      + 'margin:var(--ed-stage-my,0px) var(--ed-stage-mx,0px);'
       + 'transform-origin:center center;transform:scale(var(--ed-scale,1));overflow:hidden}',
       '.deck .slide .stage>*{max-width:none}',
       '.ed-bar{position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:2147483000;',
@@ -225,11 +226,22 @@
     // the stage into the remaining width — otherwise it hides under the rail / clips.
     var availW = window.innerWidth - (doc.body.classList.contains('ed-editing') ? RAIL_W : 0);
     var s = Math.min(availW / size.w, window.innerHeight / size.h);
+    var mx = (size.w * (s - 1)) / 2;
+    var my = (size.h * (s - 1)) / 2;
     qsa('.stage', deckRoot()).forEach(function (st) {
       st.style.setProperty('--ed-scale', String(s));
       st.style.setProperty('--ed-slide-w', size.w + 'px');
       st.style.setProperty('--ed-slide-h', size.h + 'px');
+      st.style.setProperty('--ed-stage-mx', mx + 'px');
+      st.style.setProperty('--ed-stage-my', my + 'px');
     });
+  }
+  function clearStageRuntimeStyle(st) {
+    st.style.removeProperty('--ed-scale');
+    st.style.removeProperty('--ed-slide-w');
+    st.style.removeProperty('--ed-slide-h');
+    st.style.removeProperty('--ed-stage-mx');
+    st.style.removeProperty('--ed-stage-my');
   }
   function scaleFreeGeometry(oldSize, newSize) {
     var sx = newSize.w / oldSize.w, sy = newSize.h / oldSize.h;
@@ -281,11 +293,7 @@
   function snapshot() {
     var clone = deckRoot().cloneNode(true);
     cleanEditorState(clone);
-    qsa('.stage', clone).forEach(function (st) {
-      st.style.removeProperty('--ed-scale');
-      st.style.removeProperty('--ed-slide-w');
-      st.style.removeProperty('--ed-slide-h');
-    });
+    qsa('.stage', clone).forEach(clearStageRuntimeStyle);
     return { html: clone.innerHTML, index: state.index };
   }
   function historyBytes() {
@@ -713,11 +721,7 @@
   function cleanSlideClone(slide) {
     var clone = slide.cloneNode(true);
     cleanEditorState(clone);
-    qsa('.stage', clone).forEach(function (st) {
-      st.style.removeProperty('--ed-scale');
-      st.style.removeProperty('--ed-slide-w');
-      st.style.removeProperty('--ed-slide-h');
-    });
+    qsa('.stage', clone).forEach(clearStageRuntimeStyle);
     clone.classList.remove('is-active');
     return clone;
   }
@@ -1184,7 +1188,7 @@
   function serialize() {
     var clone = doc.documentElement.cloneNode(true);
     cleanEditorState(clone);
-    qsa('.stage', clone).forEach(function (st) { st.style.removeProperty('--ed-scale'); });
+    qsa('.stage', clone).forEach(clearStageRuntimeStyle);
     qsa('.slide.is-active', clone).forEach(function (n) { n.classList.remove('is-active'); });
     var first = qs('.slide', clone); if (first) first.classList.add('is-active');
     return '<!DOCTYPE html>\n' + clone.outerHTML;
@@ -1335,6 +1339,7 @@
   function cleanStageClone(stage, size) {
     var clone = stage.cloneNode(true);
     cleanEditorState(clone);
+    clearStageRuntimeStyle(clone);
     clone.style.setProperty('--ed-scale', '1');
     clone.style.setProperty('--ed-slide-w', size.w + 'px');
     clone.style.setProperty('--ed-slide-h', size.h + 'px');
