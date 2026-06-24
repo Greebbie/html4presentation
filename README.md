@@ -8,12 +8,13 @@ A deck is one self-contained `.html` file: inline CSS, your slides, and a drop-i
 
 ## Features
 
-- **Edit in place** — click any text to type; drag an image file onto a picture to replace it (embedded as a data URL).
+- **Edit in place** — click any text to type; drag an image or video onto a media slot to replace it (embedded as a data URL).
 - **Restructure** — reorder, add, duplicate, and delete slides; cycle layouts; drag and resize elements with alignment guides.
 - **Author tools** — undo/redo, text formatting, per-slide backgrounds, and a thumbnail sidebar.
 - **Present** — press **F** for fullscreen; navigate with `←` `→` `Space`.
 - **Save** — `Ctrl`/`Cmd`+`S`. Chromium writes straight back to the file; other browsers download an updated copy.
-- **Export** — choose a resolution preset or custom pixel size, then download PDF or image-based PPTX.
+- **Cross-deck copy** — with no element selected, `Ctrl`/`Cmd`+`C` copies the current slide and `Ctrl`/`Cmd`+`V` pastes it into another html4pre deck.
+- **Export** — choose a resolution preset or custom pixel size, then download PDF or image-based PPTX. Embedded video is exported only as part of the slide image, not as playable video.
 - **No dependencies** — vanilla JS in one classic `<script>`; runs from `file://`.
 
 ## Quick start
@@ -53,9 +54,9 @@ Ask for something like *“make me a 6-slide deck about X.”* The agent emits o
 ```
 
 - `.deck` › `.slide` › `.stage` — the first slide carries `is-active`; the deck declares a logical slide size and the editor scales each `.stage` to fit the viewport.
-- `data-editable` marks editable text; `data-slot` marks swappable images.
+- `data-editable` marks editable text; `data-slot` marks swappable image/video media slots.
 - `data-layout` sets a stage's layout; `data-layouts` lists what **Layout** cycles through.
-- `data-slide-width` / `data-slide-height` set the deck's logical slide size; new decks should default to `1920×1080`. PDF/PPTX export can render at any requested pixel size, and PPTX output is full-slide images rather than editable PowerPoint text boxes.
+- `data-slide-width` / `data-slide-height` set the deck's logical slide size; new decks should default to `1920×1080`. PDF/PPTX export can render at any requested pixel size, and PPTX output is full-slide images rather than editable PowerPoint text boxes or playable video.
 
 Full reference: [`skills/html4pre/references/convention.md`](skills/html4pre/references/convention.md).
 

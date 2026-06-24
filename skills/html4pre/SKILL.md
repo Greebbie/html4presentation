@@ -1,6 +1,6 @@
 ---
 name: html4pre
-description: Use when the user wants to create a presentation, slides, slide deck, or "a deck" as HTML. Generates a single self-contained .html file that is editable like PowerPoint — the recipient can drag images to replace them, click text to edit, reorder/add/delete slides, change layout, and save back to the file — by embedding a drop-in editor. Works offline by double-clicking the file. Use for any "make me slides / a pitch deck / a talk" request where the output should be HTML.
+description: Use when the user wants to create a presentation, slides, slide deck, or "a deck" as HTML. Generates a single self-contained .html file that is editable like PowerPoint — the recipient can drag images or videos to replace media slots, click text to edit, reorder/add/delete slides, change layout, and save back to the file — by embedding a drop-in editor. Works offline by double-clicking the file. Use for any "make me slides / a pitch deck / a talk" request where the output should be HTML.
 ---
 
 # html4pre — generate decks that are born editable
@@ -56,13 +56,14 @@ Hard rules — do not deviate:
      `data-slide-height`; default new decks to `1920×1080`.
    - The first slide also has `is-active`.
    - Every editable text element gets `data-editable`.
-   - Every swappable `<img>` gets `data-slot`.
+   - Every swappable media slot (`<img>` or `<video>`) gets `data-slot`.
    - `data-layout="<name>"` goes on the **`.stage`** (not the slide); declare the names on
      the deck via `data-layouts="..."`.
    - Author at fixed px sizes against the deck's logical slide size (not `vw`/`clamp()`);
      the editor scales the whole stage for display.
-4. **Images:** prefer an inline SVG `data:` URI placeholder so swap works offline and
-   the file stays portable. If you use a real image, keep it as a `data:` URI too.
+4. **Media:** prefer an inline SVG `data:` URI placeholder for image slots so swap works
+   offline and the file stays portable. If you use real image or video media, keep it as
+   a `data:` URI too.
 5. **Slide visibility is owned by the editor** (`.slide{display:none}` /
    `.slide.is-active{...}` is injected). Your CSS styles *look*, not show/hide — but
    you may override visibility with higher specificity if you need transitions.
@@ -78,17 +79,18 @@ recipe for the standard layouts.
    and the layout rules keyed off `data-layout`. Aim for distinctive, modern, high-
    contrast design — not a generic template.
 3. Write the slides using the convention. Mark every headline, paragraph, list, and
-   image with `data-editable` / `data-slot`.
+   media slot with `data-editable` / `data-slot`.
 4. Embed the editor block verbatim before `</body>`.
 5. Tell the user how to use it: open the file, press **E** to edit, click text to type,
-   drag an image onto a picture to replace it, use the bottom bar to reorder/add/delete
-   slides and cycle layout, then **Save** (Ctrl/Cmd+S).
+   drag an image or video onto a media slot to replace it, use the bottom bar to
+   reorder/add/delete slides and cycle layout, copy a whole slide between html4pre decks
+   with Ctrl/Cmd+C and Ctrl/Cmd+V when no element is selected, then **Save** (Ctrl/Cmd+S).
 
 The embedded editor now supports: drag/resize elements with alignment guides, undo/redo,
-text formatting (size/bold/italic/underline/color/align), insert text box / shape / image,
+text formatting (size/bold/italic/underline/color/align), insert text box / shape / media,
 per-slide background, a thumbnail sidebar with drag-to-reorder, layout templates that add
 new pre-built slides, slide-size controls, and an Export dialog for image-based PDF/PPTX.
-PPTX export is full-slide screenshots, not editable PowerPoint text boxes. After editing, elements a user
+PPTX/PDF export is full-slide screenshots, not editable PowerPoint text boxes; embedded video is not preserved as playable video in exported files. After editing, elements a user
 dragged or resized carry `data-free` plus inline `left/top/width/height` geometry — that's
 expected and still valid markup (the editor and a re-opened saved file both honor it).
 
@@ -98,6 +100,6 @@ expected and still valid markup (the editor and a re-opened saved file both hono
 - [ ] Editor block pasted verbatim before `</body>`.
 - [ ] `.deck` > `.slide` > `.stage` structure; first slide has `is-active`.
 - [ ] Stage model: each slide wraps content in `.stage`; the deck declares `data-slide-width` / `data-slide-height` (default `1920×1080`); fixed px type, not vw/clamp.
-- [ ] `data-editable` on all text; `data-slot` on all images.
+- [ ] `data-editable` on all text; `data-slot` on all media slots.
 - [ ] `data-layout` on each `.stage`; `data-layouts` on the deck.
 - [ ] Opening the file shows slide 1; arrows navigate; **E** enters edit mode.

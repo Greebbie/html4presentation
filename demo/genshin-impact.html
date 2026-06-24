@@ -185,7 +185,7 @@
 
 <!-- ============================================================================
      DECK EDITOR — drop-in, single block. Paste this verbatim before </body>.
-     Turns a deck into a PowerPoint-like editor: edit text, swap images,
+     Turns a deck into a PowerPoint-like editor: edit text, swap media,
      reorder / add / delete slides, cycle layout, and save back to the .html file.
      No build, no dependencies, no server — works by double-clicking the file.
 
@@ -193,13 +193,13 @@
        - Each slide is an element with class "slide", inside a ".deck" wrapper.
        - The current slide carries class "is-active".
        - Editable text:   add  data-editable  to the element.
-       - Swappable image:  add  data-slot      to the <img>.
+       - Swappable media:  add  data-slot      to the <img> or <video>.
        - Layout:           add  data-layout="<name>" to the slide's .stage
                            element (or the slide itself if it has no .stage);
                            declare the available names on the deck via
                            data-layouts="a b c".
      If a deck omits data-editable / data-slot, the editor auto-detects text
-     elements and images so it still works (best-effort).
+     elements and media so it still works (best-effort).
      ============================================================================ -->
 <script>
 (function () {
@@ -238,9 +238,9 @@
     var ex = qsa('[data-editable]');
     return ex.length ? ex : qsa(TEXT_TAGS, deckRoot()).filter(isLeafText);
   }
-  function imageRegions() {
-    var ex = qsa('[data-slot] img, img[data-slot]');
-    return ex.length ? ex : qsa('img', deckRoot());
+  function mediaRegions() {
+    var ex = qsa('img[data-slot],video[data-slot],[data-slot] img,[data-slot] video');
+    return ex.length ? ex : qsa('img,video', deckRoot());
   }
 
   // ---- state ----------------------------------------------------------------
@@ -288,8 +288,8 @@
       'body.ed-editing .ed-edit-only{display:flex}',
       'body.ed-editing [data-ed-text]{outline:1px dashed rgba(56,189,248,.6);outline-offset:4px;border-radius:2px;cursor:text}',
       'body.ed-editing [data-ed-text]:focus{outline:2px solid #38bdf8}',
-      'body.ed-editing [data-ed-img]{outline:2px dashed rgba(56,189,248,.55);outline-offset:4px;cursor:pointer}',
-      'body.ed-editing [data-ed-img].ed-over{outline:2px solid #34d399}'
+      'body.ed-editing [data-ed-media]{outline:2px dashed rgba(56,189,248,.55);outline-offset:4px;cursor:pointer}',
+      'body.ed-editing [data-ed-media].ed-over{outline:2px solid #34d399}'
       ,'.ed-sel{position:absolute;z-index:50;border:1.5px solid #38bdf8;pointer-events:none;display:none}'
       ,'body.ed-editing .ed-sel.on{display:block}'
       ,'.ed-handle{position:absolute;width:11px;height:11px;background:#fff;border:1.5px solid #38bdf8;'
@@ -463,7 +463,16 @@
   // hold hundreds of MB. We evict oldest entries until under budget (always keeping
   // at least the current state), so undo depth degrades gracefully instead of OOM-ing.
   var hist = { stack: [], pos: -1, max: 30, maxBytes: 24 * 1024 * 1024, suspended: false };
-  function snapshot() { return { html: deckRoot().innerHTML, index: state.index }; }
+  function snapshot() {
+    var clone = deckRoot().cloneNode(true);
+    cleanEditorState(clone);
+    qsa('.stage', clone).forEach(function (st) {
+      st.style.removeProperty('--ed-scale');
+      st.style.removeProperty('--ed-slide-w');
+      st.style.removeProperty('--ed-slide-h');
+    });
+    return { html: clone.innerHTML, index: state.index };
+  }
   function historyBytes() {
     var n = 0; for (var i = 0; i < hist.stack.length; i++) n += hist.stack[i].html.length;
     return n;
@@ -481,11 +490,11 @@
   }
   function restore(snap) {
     hist.suspended = true;
-    if (state.mode === 'edit') { unwireText(); unwireImages(); }
+    if (state.mode === 'edit') { unwireText(); unwireMedia(); }
     deckRoot().innerHTML = snap.html;
     state.index = Math.min(snap.index, slides().length - 1);
     fitStages();
-    if (state.mode === 'edit') { wireText(); wireImages(); }
+    if (state.mode === 'edit') { wireText(); wireMedia(); }
     clearSelection && clearSelection();
     updateUI();
     hist.suspended = false;
@@ -550,51 +559,129 @@
     });
   }
 
-  // ---- image swap (embed as data URL so the file stays portable) ------------
-  function loadInto(img, file) {
-    if (!file || file.type.indexOf('image/') !== 0) { window.alert('Please choose an image file.'); return; }
-    var reader = new FileReader();
-    reader.onload = function () { flushPending(); img.src = reader.result; pushHistory(); markDirty(); };
-    reader.onerror = function () { window.alert('Could not read that image.'); };
-    reader.readAsDataURL(file);
+  function selfAndDesc(root, selector) {
+    var list = [];
+    if (root && root.matches && root.matches(selector)) list.push(root);
+    return list.concat(qsa(selector, root));
   }
-  function pickFile(img) {
-    var input = el('input', { type: 'file', accept: 'image/*' });
-    input.addEventListener('change', function () { loadInto(img, input.files[0]); });
-    input.click();
-  }
-  function wireImages() {
-    imageRegions().forEach(function (img) {
-      img.setAttribute('data-ed-img', '');
-      var h = {
-        click: function () { pickFile(img); },
-        over: function (e) { e.preventDefault(); img.classList.add('ed-over'); },
-        leave: function () { img.classList.remove('ed-over'); },
-        drop: function (e) { e.preventDefault(); img.classList.remove('ed-over'); loadInto(img, e.dataTransfer.files[0]); }
-      };
-      img._edH = h;
-      img.addEventListener('click', h.click);
-      img.addEventListener('dragover', h.over);
-      img.addEventListener('dragleave', h.leave);
-      img.addEventListener('drop', h.drop);
+  function stripEditorChrome(root) {
+    selfAndDesc(root, '[data-editor-chrome]').forEach(function (n) {
+      if (n === root) n.removeAttribute('data-editor-chrome');
+      else if (n.parentNode) n.parentNode.removeChild(n);
     });
   }
-  function unwireImages() {
-    qsa('[data-ed-img]').forEach(function (img) {
-      var h = img._edH;
-      img.removeAttribute('data-ed-img');
-      img.classList.remove('ed-over');
+  function stripTransientAttrs(root) {
+    selfAndDesc(root, '[contenteditable]').forEach(function (n) { n.removeAttribute('contenteditable'); });
+    selfAndDesc(root, '[data-ed-text]').forEach(function (n) { n.removeAttribute('data-ed-text'); });
+    selfAndDesc(root, '[data-ed-img],[data-ed-media]').forEach(function (n) {
+      n.removeAttribute('data-ed-img');
+      n.removeAttribute('data-ed-media');
+      if (n.classList) n.classList.remove('ed-over');
+    });
+    selfAndDesc(root, '.ed-over').forEach(function (n) { if (n.classList) n.classList.remove('ed-over'); });
+  }
+  function cleanEditorState(root) {
+    stripEditorChrome(root);
+    stripTransientAttrs(root);
+  }
+
+  // ---- media swap (embed as data URL so the file stays portable) ------------
+  function isMediaFile(file) {
+    return !!(file && (file.type.indexOf('image/') === 0 || file.type.indexOf('video/') === 0));
+  }
+  function isVideoFile(file) { return !!(file && file.type.indexOf('video/') === 0); }
+  function ensureVideoAttrs(n) {
+    n.setAttribute('controls', '');
+    n.setAttribute('playsinline', '');
+    n.setAttribute('preload', 'metadata');
+  }
+  function mediaNodeFor(file, src, source) {
+    var tag = isVideoFile(file) ? 'video' : 'img';
+    var node = el(tag);
+    node.src = src;
+    if (tag === 'video') ensureVideoAttrs(node);
+    else node.setAttribute('alt', source ? (source.getAttribute('alt') || '') : '');
+    if (source) {
+      if (source.className) node.className = source.className;
+      if (node.classList) node.classList.remove('ed-over');
+      if (source.getAttribute('style')) node.setAttribute('style', source.getAttribute('style'));
+      if (source.hasAttribute('data-slot')) node.setAttribute('data-slot', source.getAttribute('data-slot') || '');
+      if (source.hasAttribute('data-free')) node.setAttribute('data-free', source.getAttribute('data-free') || '');
+      if (tag === 'img') node.setAttribute('alt', source.getAttribute('alt') || '');
+    } else {
+      node.setAttribute('data-slot', '');
+    }
+    cleanEditorState(node);
+    return node;
+  }
+  function loadMediaInto(slot, file) {
+    if (!isMediaFile(file)) { window.alert('Please choose an image or video file.'); return; }
+    var reader = new FileReader();
+    reader.onload = function () {
+      flushPending();
+      var wantedTag = isVideoFile(file) ? 'video' : 'img';
+      var currentTag = (slot.tagName || '').toLowerCase();
+      if (currentTag === wantedTag) {
+        slot.src = reader.result;
+        if (currentTag === 'video') { ensureVideoAttrs(slot); if (slot.load) slot.load(); }
+        pushHistory();
+        markDirty();
+        return;
+      }
+      var next = mediaNodeFor(file, reader.result, slot);
+      var wasSelected = sel.el === slot;
+      if (slot.parentNode) slot.parentNode.replaceChild(next, slot);
+      rewire();
+      if (wasSelected) selectEl(next);
+      pushHistory();
+      markDirty();
+    };
+    reader.onerror = function () { window.alert('Could not read that media file.'); };
+    reader.readAsDataURL(file);
+  }
+  function pickMediaFile(slot) {
+    var input = el('input', { type: 'file', accept: 'image/*,video/*' });
+    input.addEventListener('change', function () { loadMediaInto(slot, input.files[0]); });
+    input.click();
+  }
+  function wireMedia() {
+    mediaRegions().forEach(function (slot) {
+      slot.setAttribute('data-ed-media', '');
+      var h = {
+        click: function () { pickMediaFile(slot); },
+        over: function (e) { e.preventDefault(); slot.classList.add('ed-over'); },
+        leave: function () { slot.classList.remove('ed-over'); },
+        drop: function (e) {
+          e.preventDefault();
+          e.stopPropagation();
+          slot.classList.remove('ed-over');
+          loadMediaInto(slot, e.dataTransfer.files[0]);
+        }
+      };
+      slot._edH = h;
+      slot.addEventListener('click', h.click);
+      slot.addEventListener('dragover', h.over);
+      slot.addEventListener('dragleave', h.leave);
+      slot.addEventListener('drop', h.drop);
+    });
+  }
+  function unwireMedia() {
+    qsa('[data-ed-media],[data-ed-img]').forEach(function (slot) {
+      var h = slot._edH;
+      slot.removeAttribute('data-ed-media');
+      slot.removeAttribute('data-ed-img');
+      slot.classList.remove('ed-over');
       if (h) {
-        img.removeEventListener('click', h.click);
-        img.removeEventListener('dragover', h.over);
-        img.removeEventListener('dragleave', h.leave);
-        img.removeEventListener('drop', h.drop);
-        img._edH = null;
+        slot.removeEventListener('click', h.click);
+        slot.removeEventListener('dragover', h.over);
+        slot.removeEventListener('dragleave', h.leave);
+        slot.removeEventListener('drop', h.drop);
+        slot._edH = null;
       }
     });
   }
 
-  function rewire() { if (state.mode === 'edit') { unwireText(); unwireImages(); wireText(); wireImages(); } }
+  function rewire() { if (state.mode === 'edit') { unwireText(); unwireMedia(); wireText(); wireMedia(); } }
 
   // ---- layout & structure ops -----------------------------------------------
   function layoutsList() {
@@ -746,6 +833,7 @@
   // Internal clipboard: the outerHTML of a copied element. Independent of the OS
   // clipboard so it survives without clipboard permissions and stays deck-shaped.
   var clip = null;
+  var preferInternalClip = false;
   function copySelected() {
     if (!sel.el) return;
     // Snapshot a FREE clone so the clipboard carries concrete geometry. If the source
@@ -762,6 +850,7 @@
       clone.style.margin = '0';
     }
     clip = clone.outerHTML;
+    preferInternalClip = true;
   }
   function cutSelected() {
     if (!sel.el) return;
@@ -776,11 +865,7 @@
     tmp.innerHTML = clip;
     var node = tmp.firstElementChild; if (!node) return;
     // Strip any editor chrome / stale editing attributes; rewire re-applies them cleanly.
-    node.removeAttribute('data-ed-text');
-    node.removeAttribute('data-ed-img');
-    node.removeAttribute('contenteditable');
-    node.removeAttribute('data-editor-chrome');
-    node.classList && node.classList.remove('ed-over');
+    cleanEditorState(node);
     // Offset +24/+24 from the copied geometry so the paste doesn't perfectly overlap.
     if (!node.hasAttribute('data-free')) makeFreeNode(node);
     node.style.left = ((parseFloat(node.style.left || '0') || 0) + 24) + 'px';
@@ -790,6 +875,104 @@
     selectEl(node);
     pushHistory();
     markDirty();
+  }
+
+  // ---- slide clipboard (cross-file copy/paste) ------------------------------
+  var SLIDE_CLIP_MARKER = 'data-html4pre-slide';
+  function isNativeEditingTarget(target) {
+    if (!target) return false;
+    if (target.isContentEditable) return true;
+    var tag = (target.tagName || '').toUpperCase();
+    return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+  }
+  function hasUserSelection() {
+    var s = window.getSelection && window.getSelection();
+    return !!(s && !s.isCollapsed && String(s).length);
+  }
+  function shouldUseSlideClipboard(e) {
+    if (state.presenting || sel.el || isNativeEditingTarget(e.target)) return false;
+    if (e.target && e.target.closest && e.target.closest('[data-editor-chrome]')) return false;
+    if (hasUserSelection()) return false;
+    return true;
+  }
+  function cleanSlideClone(slide) {
+    var clone = slide.cloneNode(true);
+    cleanEditorState(clone);
+    qsa('.stage', clone).forEach(function (st) {
+      st.style.removeProperty('--ed-scale');
+      st.style.removeProperty('--ed-slide-w');
+      st.style.removeProperty('--ed-slide-h');
+    });
+    clone.classList.remove('is-active');
+    return clone;
+  }
+  function slideClipboardHtml(slide) {
+    var wrap = el('div', { 'data-html4pre-slide': '1' });
+    wrap.appendChild(cleanSlideClone(slide));
+    return wrap.outerHTML;
+  }
+  function onClipboardCopy(e) {
+    if (!shouldUseSlideClipboard(e) || !e.clipboardData) return;
+    var slide = slides()[state.index]; if (!slide) return;
+    flushPending();
+    var html = slideClipboardHtml(slide);
+    e.clipboardData.setData('text/html', html);
+    e.clipboardData.setData('text/plain', 'html4pre slide\n' + html);
+    preferInternalClip = false;
+    e.preventDefault();
+  }
+  function clipboardSlideHtml(data) {
+    var html = data.getData('text/html') || '';
+    if (html.indexOf(SLIDE_CLIP_MARKER) >= 0) return html;
+    var plain = data.getData('text/plain') || '';
+    if (plain.indexOf(SLIDE_CLIP_MARKER) < 0) return '';
+    var start = plain.indexOf('<');
+    return start >= 0 ? plain.slice(start) : '';
+  }
+  function slideNodeFromClipboard(data) {
+    var html = clipboardSlideHtml(data);
+    if (!html) return null;
+    var tmp = el('div');
+    tmp.innerHTML = html;
+    var wrap = tmp.querySelector('[' + SLIDE_CLIP_MARKER + ']');
+    if (!wrap) return null;
+    var slide = wrap.classList && wrap.classList.contains('slide') ? wrap : qs('.slide', wrap);
+    if (!slide || !(slide.classList && slide.classList.contains('slide'))) return null;
+    return cleanSlideClone(slide);
+  }
+  function insertSlideAfterCurrent(node) {
+    var sl = slides(), cur = sl[state.index]; if (!cur) return;
+    flushPending();
+    clearSelection();
+    cur.parentNode.insertBefore(node, cur.nextSibling);
+    state.index = slides().indexOf(node);
+    fitStages();
+    rewire();
+    pushHistory();
+    markDirty();
+  }
+  function onClipboardPaste(e) {
+    if (e.defaultPrevented || state.presenting || isNativeEditingTarget(e.target)) return;
+    if (sel.el && clip) { e.preventDefault(); pasteClip(); return; }
+    if (!sel.el && clip && preferInternalClip) {
+      e.preventDefault();
+      pasteClip();
+      return;
+    }
+    if (!sel.el && e.clipboardData) {
+      var slide = slideNodeFromClipboard(e.clipboardData);
+      if (slide) {
+        e.preventDefault();
+        insertSlideAfterCurrent(slide);
+        return;
+      }
+    }
+    if (!sel.el && clip) {
+      e.preventDefault();
+      pasteClip();
+      return;
+    }
+    if (e.target && e.target.closest && e.target.closest('[data-editor-chrome]')) return;
   }
   // makeFree operates on the live selected element using offset* geometry; a freshly
   // parsed (not-yet-attached) node has no layout, so pin it from its inline styles only.
@@ -1138,19 +1321,25 @@
     placeFree(n, Math.round((kind === 'line' ? 320 : 200) * k), Math.max(2, Math.round((kind === 'line' ? 4 : 160) * k)));
     pushHistory(); selectEl(n); markDirty();
   }
-  function insertImagePrompt() {
-    var input = el('input', { type: 'file', accept: 'image/*' });
+  function insertMediaFile(file) {
+    if (!isMediaFile(file)) return;
+    var reader = new FileReader();
+    reader.onload = function () {
+      var node = mediaNodeFor(file, reader.result);
+      var k = stageSizeScale();
+      var w = isVideoFile(file) ? 480 : 400;
+      var h = isVideoFile(file) ? 270 : 300;
+      placeFree(node, Math.round(w * k), Math.round(h * k));
+      rewire(); pushHistory(); selectEl(node); markDirty();
+    };
+    reader.onerror = function () { window.alert('Could not read that media file.'); };
+    reader.readAsDataURL(file);
+  }
+  function insertMediaPrompt() {
+    var input = el('input', { type: 'file', accept: 'image/*,video/*' });
     input.addEventListener('change', function () {
       var f = input.files[0]; if (!f) return;
-      var reader = new FileReader();
-      reader.onload = function () {
-        var img = el('img', { 'data-slot': '', alt: '' });
-        img.src = reader.result;
-        var k = stageSizeScale();
-        placeFree(img, Math.round(400 * k), Math.round(300 * k));
-        rewire(); pushHistory(); selectEl(img); markDirty();
-      };
-      reader.readAsDataURL(f);
+      insertMediaFile(f);
     });
     input.click();
   }
@@ -1158,18 +1347,10 @@
   function onDeckDrop(e) {
     if (state.mode !== 'edit') return;
     var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
-    if (!f || f.type.indexOf('image/') !== 0) return;
-    if (e.target.closest && e.target.closest('[data-ed-img]')) return; // existing image swap handles it
+    if (!isMediaFile(f)) return;
+    if (e.target.closest && e.target.closest('[data-ed-media],[data-ed-img]')) return; // existing media swap handles it
     e.preventDefault();
-    var reader = new FileReader();
-    reader.onload = function () {
-      var img = el('img', { 'data-slot': '', alt: '' });
-      img.src = reader.result;
-      var k = stageSizeScale();
-      placeFree(img, Math.round(400 * k), Math.round(300 * k));
-      rewire(); pushHistory(); selectEl(img); markDirty();
-    };
-    reader.readAsDataURL(f);
+    insertMediaFile(f);
   }
 
   // ---- backgrounds -----------------------------------------------------------
@@ -1187,10 +1368,7 @@
   // ---- save -----------------------------------------------------------------
   function serialize() {
     var clone = doc.documentElement.cloneNode(true);
-    qsa('[data-editor-chrome]', clone).forEach(function (n) { n.parentNode.removeChild(n); });
-    qsa('[contenteditable]', clone).forEach(function (n) { n.removeAttribute('contenteditable'); });
-    qsa('[data-ed-text]', clone).forEach(function (n) { n.removeAttribute('data-ed-text'); });
-    qsa('[data-ed-img]', clone).forEach(function (n) { n.removeAttribute('data-ed-img'); n.classList.remove('ed-over'); });
+    cleanEditorState(clone);
     qsa('.stage', clone).forEach(function (st) { st.style.removeProperty('--ed-scale'); });
     qsa('.slide.is-active', clone).forEach(function (n) { n.classList.remove('is-active'); });
     var first = qs('.slide', clone); if (first) first.classList.add('is-active');
@@ -1341,10 +1519,7 @@
   }
   function cleanStageClone(stage, size) {
     var clone = stage.cloneNode(true);
-    qsa('[data-editor-chrome]', clone).forEach(function (n) { n.parentNode && n.parentNode.removeChild(n); });
-    qsa('[contenteditable]', clone).forEach(function (n) { n.removeAttribute('contenteditable'); });
-    qsa('[data-ed-text]', clone).forEach(function (n) { n.removeAttribute('data-ed-text'); });
-    qsa('[data-ed-img]', clone).forEach(function (n) { n.removeAttribute('data-ed-img'); n.classList.remove('ed-over'); });
+    cleanEditorState(clone);
     clone.style.setProperty('--ed-scale', '1');
     clone.style.setProperty('--ed-slide-w', size.w + 'px');
     clone.style.setProperty('--ed-slide-h', size.h + 'px');
@@ -1652,7 +1827,7 @@
     'title': '<div class="stage" data-layout="title"><p class="kicker" data-editable>Kicker</p><h1 data-editable>Title goes here</h1><p data-editable>Subtitle or supporting line.</p></div>',
     'statement': '<div class="stage" data-layout="statement"><h1 data-editable>A bold statement.</h1></div>',
     'two-col': '<div class="stage" data-layout="two-col"><div class="row" style="display:grid;grid-template-columns:1fr 1fr;gap:64px;width:100%"><div><h2 data-editable>Left heading</h2><p data-editable>Left column text.</p></div><div><h2 data-editable>Right heading</h2><p data-editable>Right column text.</p></div></div></div>',
-    'image-text': '<div class="stage" data-layout="image-right"><div class="row" style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;width:100%"><div><h2 data-editable>Heading</h2><p data-editable>Describe the picture.</p></div><figure style="margin:0"><img data-slot alt="" src="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27800%27 height=%27600%27%3E%3Crect width=%27100%25%27 height=%27100%25%27 fill=%27%23334155%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 fill=%27%2394a3b8%27 font-family=%27sans-serif%27 font-size=%2732%27 text-anchor=%27middle%27 dominant-baseline=%27middle%27%3EDrop an image%3C/text%3E%3C/svg%3E" style="width:100%;height:auto;border-radius:16px"></figure></div></div>',
+    'image-text': '<div class="stage" data-layout="image-right"><div class="row" style="display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center;width:100%"><div><h2 data-editable>Heading</h2><p data-editable>Describe the media.</p></div><figure style="margin:0"><img data-slot alt="" src="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27800%27 height=%27600%27%3E%3Crect width=%27100%25%27 height=%27100%25%27 fill=%27%23334155%27/%3E%3Ctext x=%2750%25%27 y=%2750%25%27 fill=%27%2394a3b8%27 font-family=%27sans-serif%27 font-size=%2732%27 text-anchor=%27middle%27 dominant-baseline=%27middle%27%3EDrop media%3C/text%3E%3C/svg%3E" style="width:100%;height:auto;border-radius:16px"></figure></div></div>',
     'quote': '<div class="stage" data-layout="center"><blockquote data-editable style="font-size:48px;line-height:1.3;font-style:italic">“A memorable quote.”</blockquote><p data-editable>— Attribution</p></div>',
     'section': '<div class="stage" data-layout="statement"><p class="kicker" data-editable>Section</p><h1 data-editable>Next chapter</h1></div>'
   };
@@ -1694,7 +1869,7 @@
     if (m === state.mode) return;
     state.mode = m;
     if (m === 'edit') {
-      wireText(); wireImages();
+      wireText(); wireMedia();
       doc.addEventListener('mousedown', onStageMouseDown, true);
       deckRoot().addEventListener('dragover', onDeckOver);
       deckRoot().addEventListener('drop', onDeckDrop);
@@ -1706,7 +1881,7 @@
     }
     else {
       flushPending();
-      unwireText(); unwireImages();
+      unwireText(); unwireMedia();
       doc.removeEventListener('mousedown', onStageMouseDown, true);
       deckRoot().removeEventListener('dragover', onDeckOver);
       deckRoot().removeEventListener('drop', onDeckDrop);
@@ -1895,7 +2070,7 @@
       b('', '▭', function () { insertShape('rect'); }, 'Insert rectangle'),
       b('', '◯', function () { insertShape('ellipse'); }, 'Insert ellipse'),
       b('', '╱', function () { insertShape('line'); }, 'Insert line'),
-      b('', '🖼', insertImagePrompt, 'Insert image')
+      b('', '🖼', insertMediaPrompt, 'Insert media')
     ]);
     ui.bg = el('input', { id: 'ed-bg', type: 'color', title: 'Slide background', class: 'ed-bgpick' });
     ui.bg.addEventListener('change', function () { setStageBg(ui.bg.value); });
@@ -1949,6 +2124,7 @@
     // else advances/retreats. Nothing here mutates the deck, so no history concerns.
     if (state.presenting) {
       if (e.key === 'Escape' || e.key === 'f' || e.key === 'F') { e.preventDefault(); exitPresenting(); return; }
+      if (e.target && e.target.closest && e.target.closest('video')) return;
       if (e.key === 'ArrowRight' || e.key === 'PageDown' || e.key === ' ') { e.preventDefault(); go(1); return; }
       if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); go(-1); return; }
       if (e.key === 'Home') { e.preventDefault(); goTo(0); return; }
@@ -1972,7 +2148,7 @@
     // While typing in text, fall through so native copy/cut/paste keep working.
     if ((e.metaKey || e.ctrlKey) && (e.key === 'c' || e.key === 'C') && sel.el && !typing) { e.preventDefault(); copySelected(); return; }
     if ((e.metaKey || e.ctrlKey) && (e.key === 'x' || e.key === 'X') && sel.el && !typing) { e.preventDefault(); cutSelected(); return; }
-    if ((e.metaKey || e.ctrlKey) && (e.key === 'v' || e.key === 'V') && clip && !typing) { e.preventDefault(); pasteClip(); return; }
+    if ((e.metaKey || e.ctrlKey) && (e.key === 'v' || e.key === 'V') && sel.el && clip && !typing) { e.preventDefault(); pasteClip(); return; }
     if ((e.key === 'Delete' || e.key === 'Backspace') && sel.el && !typing) { e.preventDefault(); deleteSelected(); return; }
     if ((e.metaKey || e.ctrlKey) && e.key === '\\' && sel.el) { e.preventDefault(); resetFlow(sel.el); return; }
     if (typing) return;
@@ -2015,12 +2191,16 @@
     hist.stack = [snapshot()]; hist.pos = 0;
     updateUI();
     doc.addEventListener('keydown', onKey);
+    doc.addEventListener('copy', onClipboardCopy);
+    doc.addEventListener('paste', onClipboardPaste);
+    window.addEventListener('blur', function () { preferInternalClip = false; });
     // Double-click anywhere on a slide element (present mode) → enter edit + edit it.
     doc.addEventListener('dblclick', onDeckDblClick);
     // While presenting, a bare click anywhere advances the deck (not on chrome — it's hidden).
     doc.addEventListener('click', function (e) {
       if (!state.presenting) return;
       if (e.target.closest && e.target.closest('[data-editor-chrome]')) return;
+      if (e.target.closest && e.target.closest('video')) return;
       go(1);
     });
     doc.addEventListener('fullscreenchange', onFullscreenChange);

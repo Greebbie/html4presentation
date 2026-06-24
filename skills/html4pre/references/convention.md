@@ -33,14 +33,14 @@ Decks without slide-size metadata still open with the legacy `1280×720` fallbac
 | `.stage` | Fixed logical canvas inside the slide; holds all slide content. Carries `data-layout` and (optionally) an inline `background`. The editor sizes it from deck metadata and scales it to fit. |
 | `.is-active` | The currently visible slide. Put it on the **first** `.slide`; the editor manages it afterward. |
 | `data-editable` | Marks a text element as click-to-edit. |
-| `data-slot` | On an `<img>`: marks it swappable (click or drag-drop a file). |
+| `data-slot` | On an `<img>` or `<video>`: marks it as a swappable media slot (click or drag-drop an image/video file). |
 | `data-layout="x"` | Per-stage layout name (lives on `.stage`, not `.slide`); your CSS styles `.stage[data-layout="x"]`. |
 | `data-layouts="a b c"` | On `.deck`: the layout names the **Layout** button cycles through. |
 | `data-slide-width`, `data-slide-height` | On `.deck`: the logical slide size. Use `1920` and `1080` for default 16:9 decks. |
 | `data-free` | On any stage child: marks it as freely positioned (see below). Editor-managed; you normally don't hand-author it. |
 
 If a deck has **no** `data-editable` / `data-slot`, the editor auto-detects text
-elements and `<img>`s. The explicit attributes are more reliable — always add them when
+elements and media (`<img>` / `<video>`). The explicit attributes are more reliable — always add them when
 generating.
 
 ## Free positioning (editor-managed)
@@ -117,15 +117,17 @@ The editor can export PDF and PPTX from the **Export** dialog. Slide Size contro
 deck's logical canvas; Export Resolution controls output pixels. Both exports render each
 slide as a bitmap at the chosen export width/height. If that export ratio differs from
 the deck's logical slide ratio, the slide is stretched to fill. PPTX output is one
-full-slide image per page, not editable PowerPoint text boxes.
+full-slide image per page, not editable PowerPoint text boxes. Embedded video is not
+preserved as playable video in exported PPTX/PDF; it is captured only as part of the
+slide image.
 
-## Offline image placeholder
+## Offline media placeholder
 
-Use an inline SVG `data:` URI so image-swap works with no network and the file stays
+Use an inline SVG `data:` URI so the media slot works with no network and the file stays
 self-contained:
 
 ```html
-<img data-slot src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Crect width='100%25' height='100%25' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='30' fill='%2364748b' text-anchor='middle' dominant-baseline='middle'%3EDrop an image here%3C/text%3E%3C/svg%3E" alt="">
+<img data-slot src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='800' height='600'%3E%3Crect width='100%25' height='100%25' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='50%25' font-family='sans-serif' font-size='30' fill='%2364748b' text-anchor='middle' dominant-baseline='middle'%3EDrop media here%3C/text%3E%3C/svg%3E" alt="">
 ```
 
 ## Notes on layout cycling
