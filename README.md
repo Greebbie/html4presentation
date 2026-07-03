@@ -8,7 +8,7 @@ A deck is one self-contained `.html` file: inline CSS, your slides, and a drop-i
 
 ## Features
 
-- **Edit in place** — click any text to type; drag an image or video onto a media slot to replace it (embedded as a data URL).
+- **Edit in place** — click any text to type; drag an image or video onto a media slot to replace it, or paste a screenshot with `Ctrl`/`Cmd`+`V` to add it to the slide (embedded as a data URL).
 - **Restructure** — reorder, add, duplicate, and delete slides; cycle layouts; drag and resize elements with alignment guides.
 - **Author tools** — undo/redo, text formatting, per-slide backgrounds, and a thumbnail sidebar.
 - **Present** — press **F** for fullscreen; navigate with `←` `→` `Space`.

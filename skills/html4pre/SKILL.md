@@ -87,7 +87,8 @@ recipe for the standard layouts.
    with Ctrl/Cmd+C and Ctrl/Cmd+V when no element is selected, then **Save** (Ctrl/Cmd+S).
 
 The embedded editor now supports: drag/resize elements with alignment guides, undo/redo,
-text formatting (size/bold/italic/underline/color/align), insert text box / shape / media,
+text formatting (size/bold/italic/underline/color/align), insert text box / shape / media
+(including pasting an image from the OS clipboard in edit mode),
 per-slide background, a thumbnail sidebar with drag-to-reorder, layout templates that add
 new pre-built slides, slide-size controls, and an Export dialog for image-based PDF/PPTX.
 PPTX/PDF export is full-slide screenshots, not editable PowerPoint text boxes; embedded video is not preserved as playable video in exported files. After editing, elements a user

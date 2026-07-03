@@ -293,6 +293,21 @@
       ,'body.ed-presenting .ed-bar,body.ed-presenting .ed-topbar,body.ed-presenting .ed-rail,'
       +'body.ed-presenting .ed-fmt,body.ed-presenting .ed-hint,body.ed-presenting .ed-sel{display:none !important}'
       ,'body.ed-presenting{padding-left:0 !important}'
+      // slide transition: opacity only — anything touching transform would fight the
+      // stage's scale(var(--ed-scale)). Restarts only when is-active flips false→true.
+      ,'@keyframes ed-slide-in{from{opacity:0}to{opacity:1}}'
+      ,'.deck .slide.is-active{animation:ed-slide-in .28s ease}'
+      // presenting progress bar (not in the ed-presenting hide list on purpose)
+      ,'.ed-progress{position:fixed;left:0;bottom:0;height:3px;width:0;background:#38bdf8;'
+      +'z-index:2147483000;transition:width .25s ease;display:none;pointer-events:none}'
+      ,'body.ed-presenting .ed-progress{display:block}'
+      // chrome polish: rail scrollbar, thumb hover, keyboard focus rings
+      ,'.ed-rail::-webkit-scrollbar{width:8px}'
+      ,'.ed-rail::-webkit-scrollbar-thumb{background:rgba(148,163,184,.35);border-radius:4px}'
+      ,'.ed-rail::-webkit-scrollbar-track{background:transparent}'
+      ,'.ed-thumb{transition:border-color .15s ease}'
+      ,'.ed-thumb:hover:not(.cur){border-color:rgba(56,189,248,.55)}'
+      ,'.ed-b:focus-visible,.ed-num:focus-visible,.ed-select:focus-visible{outline:2px solid #38bdf8;outline-offset:1px}'
     ].join('');
     var st = el('style', { id: 'ed-style', 'data-editor-chrome': true });
     st.textContent = css;
@@ -393,7 +408,12 @@
     var clone = deckRoot().cloneNode(true);
     cleanEditorState(clone);
     qsa('.stage', clone).forEach(clearStageRuntimeStyle);
-    return { html: clone.innerHTML, index: state.index };
+    // Slide size lives in ATTRIBUTES on the deck root, which innerHTML does not
+    // capture — snapshot it too, or undoing a slide-size change reverts the scaled
+    // element geometry while leaving the canvas at the new size (mismatched layout).
+    var d = deckRoot();
+    return { html: clone.innerHTML, index: state.index,
+             w: d.getAttribute('data-slide-width'), h: d.getAttribute('data-slide-height') };
   }
   function historyBytes() {
     var n = 0; for (var i = 0; i < hist.stack.length; i++) n += hist.stack[i].html.length;
@@ -414,8 +434,13 @@
     hist.suspended = true;
     if (state.mode === 'edit') { unwireText(); unwireMedia(); }
     deckRoot().innerHTML = snap.html;
+    if (snap.w != null) deckRoot().setAttribute('data-slide-width', snap.w);
+    else deckRoot().removeAttribute('data-slide-width');
+    if (snap.h != null) deckRoot().setAttribute('data-slide-height', snap.h);
+    else deckRoot().removeAttribute('data-slide-height');
     state.index = Math.min(snap.index, slides().length - 1);
     fitStages();
+    updateSizeInputs();
     if (state.mode === 'edit') { wireText(); wireMedia(); }
     clearSelection && clearSelection();
     updateUI();
@@ -563,7 +588,10 @@
   }
   function pickMediaFile(slot) {
     var input = el('input', { type: 'file', accept: 'image/*,video/*' });
-    input.addEventListener('change', function () { loadMediaInto(slot, input.files[0]); });
+    input.addEventListener('change', function () {
+      var f = input.files && input.files[0];
+      if (f) loadMediaInto(slot, f); // no file = dialog cancelled → quiet no-op
+    });
     input.click();
   }
   function wireMedia() {
@@ -626,6 +654,9 @@
     flushPending();
     var sl = slides(), cur = sl[state.index]; if (!cur) return;
     var clone = cur.cloneNode(true);
+    // The live slide can contain editor chrome (selection box, snap guides) appended
+    // to its stage — cloning that leaves a ghost selection border on the new slide.
+    cleanEditorState(clone);
     clone.classList.remove('is-active');
     cur.parentNode.insertBefore(clone, cur.nextSibling);
     state.index += 1;
@@ -884,6 +915,13 @@
         insertSlideAfterCurrent(slide);
         return;
       }
+    }
+    // OS-clipboard media (e.g. a screenshot): in edit mode, paste drops it onto the
+    // current slide as a new free-floating element, embedded as a data: URL.
+    if (!sel.el && state.mode === 'edit' && e.clipboardData &&
+        e.clipboardData.files && e.clipboardData.files.length) {
+      var file = e.clipboardData.files[0];
+      if (isMediaFile(file)) { e.preventDefault(); insertMediaFile(file); return; }
     }
     if (!sel.el && clip) {
       e.preventDefault();
@@ -1204,7 +1242,10 @@
     // OWN measured width (it grew with the font select + list buttons), so a selection
     // near the right edge can't push the bar off-screen — measure now that it's visible.
     var r = sel.el.getBoundingClientRect();
-    var top = Math.max(8, r.top - 44);
+    // Above the element by default; when the element sits near the viewport top the
+    // bar would cover the top toolbar / clip off-screen — flip it below instead.
+    var top = r.top - 44;
+    if (top < 64) top = Math.min(window.innerHeight - 44, r.bottom + 10);
     var fw = ui.fmt.offsetWidth || 520;
     ui.fmt.style.left = Math.max(8, Math.min(window.innerWidth - fw - 8, r.left)) + 'px';
     ui.fmt.style.top = top + 'px';
@@ -1288,12 +1329,26 @@
     var clone = doc.documentElement.cloneNode(true);
     cleanEditorState(clone);
     qsa('.stage', clone).forEach(clearStageRuntimeStyle);
+    // fitStages sets runtime slide-size vars as inline style on the deck root;
+    // drop them from the saved file (they're recomputed on every load anyway).
+    var deckClone = qs('.deck', clone);
+    if (deckClone) {
+      deckClone.style.removeProperty('--ed-slide-w');
+      deckClone.style.removeProperty('--ed-slide-h');
+      if (!deckClone.getAttribute('style')) deckClone.removeAttribute('style');
+    }
     qsa('.slide.is-active', clone).forEach(function (n) { n.classList.remove('is-active'); });
     var first = qs('.slide', clone); if (first) first.classList.add('is-active');
     return '<!DOCTYPE html>\n' + clone.outerHTML;
   }
   function suggestedName() {
-    var base = (doc.title || 'deck').trim().replace(/[^a-z0-9\-_]+/gi, '-').toLowerCase();
+    // Keep Unicode title characters (CJK etc.) — only strip what's illegal or fragile
+    // in filenames — so a deck titled 产品介绍 saves as 产品介绍.html, not "-.html".
+    var base = (doc.title || 'deck').trim()
+      .replace(/[\\\/:*?"<>|\s]+/g, '-')
+      .replace(/-{2,}/g, '-')
+      .replace(/^-+|-+$/g, '')
+      .toLowerCase();
     return (base || 'deck') + '.html';
   }
   function downloadBlob(blob, name) {
@@ -1685,6 +1740,17 @@
     ui.rail = el('div', { class: 'ed-rail', 'data-editor-chrome': true });
     doc.body.appendChild(ui.rail);
   }
+  // Rebuilding the rail clones every stage — including multi-MB data: URI media — so
+  // doing it synchronously inside EVERY updateUI made typing cost O(deck size) per
+  // keystroke. Debounce it: trailing 150ms, so a burst of edits pays for ONE rebuild.
+  var railTimer = null;
+  function scheduleRailRender() {
+    if (railTimer) return;
+    railTimer = setTimeout(function () {
+      railTimer = null;
+      if (state.mode === 'edit') renderRail();
+    }, 150);
+  }
   var dragThumb = null;
   function renderRail() {
     if (!ui.rail) return;
@@ -1916,7 +1982,8 @@
     if (ui.exportStatus) ui.exportStatus.textContent = state.exportMessage || '';
     if (ui.undo) ui.undo.disabled = !canUndo();
     if (ui.redo) ui.redo.disabled = !canRedo();
-    if (state.mode === 'edit') renderRail();
+    if (ui.progress) ui.progress.style.width = (sl.length ? ((state.index + 1) / sl.length) * 100 : 0) + '%';
+    if (state.mode === 'edit') scheduleRailRender();
   }
 
   function buildExportDialog() {
@@ -2106,6 +2173,8 @@
     buildRail();
     buildTplMenu();
     buildHint();
+    ui.progress = el('div', { class: 'ed-progress', 'data-editor-chrome': true });
+    doc.body.appendChild(ui.progress);
     state.index = 0;
     hist.stack = [snapshot()]; hist.pos = 0;
     updateUI();
@@ -2129,6 +2198,12 @@
       if (ui.tplMenu && ui.tplMenu.classList.contains('on') &&
           !e.target.closest('.ed-tpl-menu') && e.target !== ui.tplBtn) hideTplMenu();
     }, false);
+    // Data-loss guard: dropping a file anywhere the media handlers didn't claim would
+    // make the browser NAVIGATE to that file, silently discarding unsaved edits.
+    // Slot/deck handlers run first (bubbling); an unhandled drop reaching the document
+    // gets neutralised here.
+    doc.addEventListener('dragover', function (e) { e.preventDefault(); });
+    doc.addEventListener('drop', function (e) { e.preventDefault(); });
     window.addEventListener('beforeunload', function (e) {
       if (!state.dirty) return;
       e.preventDefault(); e.returnValue = '';
